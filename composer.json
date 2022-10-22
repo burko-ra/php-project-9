@@ -25,5 +25,10 @@
         "slim/http": "^1.2",
         "slim/php-view": "^3.2",
         "php-di/php-di": "^6.4"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
     }
 }
