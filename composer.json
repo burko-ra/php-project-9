@@ -1,0 +1,18 @@
+{
+    "name": "hexlet/code",
+    "description": "Educational Project 3: Page Analyzer",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Hexlet\\Code\\": "scr/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Roman Burko",
+            "email": "redstone.kem@gmail.com"
+        }
+    ],
+    "require": {}
+}
