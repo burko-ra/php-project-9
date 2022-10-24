@@ -1,16 +1,19 @@
 <?php
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use DI\Container;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$app = AppFactory::create();
+$container = new Container();
+$container->set('renderer', function () {
+    return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
+});
 
-$app->get('/', function (Request $request, Response $response, $args) {
-    $response->getBody()->write("Hello world!");
-    return $response;
+$app = AppFactory::createFromContainer($container);
+
+$app->get('/', function ($request, $response) {
+    return $this->get('renderer')->render($response, '../index.html');
 });
 
 $app->run();
