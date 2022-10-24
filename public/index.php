@@ -1,9 +1,10 @@
 <?php
 
+require __DIR__ . '/../vendor/autoload.php';
+
 use Slim\Factory\AppFactory;
 use DI\Container;
-
-require __DIR__ . '/../vendor/autoload.php';
+use Slim\Middleware\MethodOverrideMiddleware;
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -11,9 +12,11 @@ $container->set('renderer', function () {
 });
 
 $app = AppFactory::createFromContainer($container);
+$app->addErrorMiddleware(true, true, true);
+$app->add(MethodOverrideMiddleware::class);
 
 $app->get('/', function ($request, $response) {
-    return $this->get('renderer')->render($response, '../index.html');
+    return $this->get('renderer')->render($response, 'index.html');
 });
 
 $app->run();
