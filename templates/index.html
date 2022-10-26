@@ -12,11 +12,7 @@
 <body class="min-vh-100 d-flex flex-column">
     <header class="flex-shrink-0">
         <nav class="navbar navbar-expand-md navbar-dark bg-dark px-3">
-            <a class="navbar-brand" href="#">Анализатор страниц</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <a class="navbar-brand" href="/">Анализатор страниц</a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -38,11 +34,19 @@
                     <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
                     <form action="/urls" method="post" class="row">
                         <div class="col-8">
-                            <input type="text" name="url[name]" value="" class="form-control form-control-lg"
-                                placeholder="https://www.example.com">
+                            <?php if (empty($errors)) : ?>
+                            <input type="text" name="url[name]" value="<?= $url['name'] ?>"
+                                class="form-control form-control-lg" placeholder="https://www.example.com">
+                            <?php else : ?>
+                            <input type="text" name="url[name]" value="<?= $url['name'] ?>"
+                                class="form-control form-control-lg is-invalid" placeholder="https://www.example.com">
+                            <div class="invalid-feedback">
+                                Некорректный URL
+                            </div>
+                            <?php endif ?>
                         </div>
                         <div class="col-2">
-                            <input type="submit" class="btn btn-primary btn-lg ms-3 px-5 text-uppercase mx-3"
+                            <input type="submit" class="btn btn-primary btn-lg px-5 mx-3 text-uppercase"
                                 value="Проверить">
                         </div>
                     </form>
