@@ -27,7 +27,8 @@
         "slim/http": "^1.2",
         "slim/php-view": "^3.2",
         "php-di/php-di": "^6.4",
-        "twbs/bootstrap": "5.2.2"
+        "twbs/bootstrap": "5.2.2",
+        "nesbot/carbon": "^2.62"
     },
     "config": {
         "platform": {
