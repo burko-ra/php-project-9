@@ -5,8 +5,6 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Carbon\Carbon;
-use Valitron\Validator;
 
 use function PageAnalyzer\Engine\getUrlErrors;
 use function PageAnalyzer\Engine\normalizeUrl;
@@ -37,8 +35,6 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 });
 
-$test = Carbon::now()->toDateTimeString();
-$test2 = new Validator($urlParts);
 $app->post('/urls', function ($request, $response) {
     $url = $request->getParsedBodyParam('url');
     $urlName = $url['name'];
