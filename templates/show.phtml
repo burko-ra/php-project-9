@@ -24,6 +24,20 @@
         </nav>
     </header>
     <main class="flex-grow-1">
+        <?php if (isset($flash['success'])) : ?>
+            <?php foreach ($flash['success'] as $message) : ?>
+                <div class="alert alert-success" role="alert">
+                    <?= $message ?>
+                </div>
+            <?php endforeach ?>
+        <?php endif ?>
+        <?php if (isset($flash['info'])) : ?>
+            <?php foreach ($flash['info'] as $message) : ?>
+                <div class="alert alert-info" role="alert">
+                    <?= $message ?>
+                </div>
+            <?php endforeach ?>
+        <?php endif ?>
         <div class="container-lg mt-3">
             <h1>Сайт: <?= $url['name'] ?></h1>
             <div class="table-responsive">

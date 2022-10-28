@@ -14,13 +14,12 @@ use function PageAnalyzer\Engine\getUrlId;
 use function PageAnalyzer\Engine\getUrlInfo;
 use function PageAnalyzer\Engine\getUrls;
 
-/**
- * @var Container $this
- */
-
 $container = new Container();
 $container->set('renderer', function () {
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
+});
+$container->set('flash', function () {
+    return new \Slim\Flash\Messages();
 });
 
 $app = AppFactory::createFromContainer($container);
@@ -28,6 +27,12 @@ $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
 
 $router = $app->getRouteCollector()->getRouteParser();
+
+session_start();
+
+/**
+ * @var Container $this
+ */
 
 $app->get('/', function ($request, $response) {
     $params = [
@@ -55,6 +60,9 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     if (isUrlUnique($normalizedUrlName)) {
         insertUrl($normalizedUrlName);
+        $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
+    } else {
+        $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
     $id = getUrlId($normalizedUrlName);
@@ -62,6 +70,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
 });
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
+    $flash = $this->get('flash')->getMessages();
     $id = $args['id'];
     $urlInfo = getUrlInfo($id);
     $params = [
@@ -70,6 +79,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
             'name' => $urlInfo['name'],
             'date' => $urlInfo['created_at']
         ],
+        'flash' => $flash
     ];
     return $this->get('renderer')->render($response, 'show.phtml', $params);
 })->setName('url');
