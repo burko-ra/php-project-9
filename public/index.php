@@ -27,15 +27,17 @@ $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
 
+$router = $app->getRouteCollector()->getRouteParser();
+
 $app->get('/', function ($request, $response) {
     $params = [
         'url' => ['name' => ''],
         'errors' => []
     ];
     return $this->get('renderer')->render($response, 'index.phtml', $params);
-});
+})->setName('root');
 
-$app->post('/urls', function ($request, $response) {
+$app->post('/urls', function ($request, $response) use ($router) {
     $url = $request->getParsedBodyParam('url');
     $urlName = $url['name'];
 
@@ -56,7 +58,7 @@ $app->post('/urls', function ($request, $response) {
     }
 
     $id = getUrlId($normalizedUrlName);
-    return $response->withRedirect("/urls/{$id}", 302);
+    return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
 });
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
@@ -70,12 +72,12 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
         ],
     ];
     return $this->get('renderer')->render($response, 'show.phtml', $params);
-});
+})->setName('url');
 
 $app->get('/urls', function ($request, $response) {
     $urls = getUrls();
     $params = ['urls' => $urls];
     return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
-});
+})->setName('urls');
 
 $app->run();
