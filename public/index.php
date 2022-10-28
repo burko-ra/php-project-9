@@ -5,7 +5,18 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Carbon\Carbon;
+
+use function PageAnalyzer\Engine\getUrlErrors;
+use function PageAnalyzer\Engine\normalizeUrl;
+use function PageAnalyzer\Engine\isUrlUnique;
+use function PageAnalyzer\Engine\insertUrl;
+use function PageAnalyzer\Engine\getUrlId;
+use function PageAnalyzer\Engine\getUrlInfo;
+use function PageAnalyzer\Engine\getUrls;
+
+/**
+ * @var Container $this
+ */
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -16,46 +27,55 @@ $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
 
-//$databaseUrl = parse_url($_ENV['DATABASE_URL']);
-//dump($databaseUrl);
-//phpinfo();
-//print_r(PDO::getAvailableDrivers());
-
 $app->get('/', function ($request, $response) {
     $params = [
         'url' => ['name' => ''],
         'errors' => []
     ];
-    return $this->get('renderer')->render($response, 'index.html', $params);
+    return $this->get('renderer')->render($response, 'index.phtml', $params);
 });
 
 $app->post('/urls', function ($request, $response) {
     $url = $request->getParsedBodyParam('url');
     $urlName = $url['name'];
-    $urlParts = parse_url($urlName);
-    var_dump($urlParts);
-    $validator = new Valitron\Validator($urlParts);
-    $validator->rule('required', ['scheme', 'host']);
-    if(!$validator->validate()) {
-        echo "Yay! We're all bad :(";
+
+    $errors = getUrlErrors($urlName);
+
+    if (count($errors) !== 0) {
         $params = [
             'url' => ['name' => $url['name']],
-            'errors' => $validator->errors()
+            'errors' => $errors
         ];
-        return $this->get('renderer')->render($response, 'index.html', $params);
+        return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
-    $dbh = new PDO('postgresql://ephemeris:123@localhost:8000/project-3');
-    // $sqlInsertUrl = 'INSERT INTO urls (name, created_at) VALUES
-    //     (:name, :created_at)';
-    // $queryInsertUrl = $dbh->prepare($sqlInsertUrl);
-    // $queryInsertUrl->execute([':name' => $urlName, ':created_at' => Carbon::now()->toDateTimeString()]);
 
-    return $response->withRedirect('/urls', 302);
+    $normalizedUrlName = normalizeUrl($urlName);
+
+    if (isUrlUnique($normalizedUrlName)) {
+        insertUrl($normalizedUrlName);
+    }
+
+    $id = getUrlId($normalizedUrlName);
+    return $response->withRedirect("/urls/{$id}", 302);
+});
+
+$app->get('/urls/{id}', function ($request, $response, array $args) {
+    $id = $args['id'];
+    $urlInfo = getUrlInfo($id);
+    $params = [
+        'url' => [
+            'id' => $urlInfo['id'],
+            'name' => $urlInfo['name'],
+            'date' => $urlInfo['created_at']
+        ],
+    ];
+    return $this->get('renderer')->render($response, 'show.phtml', $params);
 });
 
 $app->get('/urls', function ($request, $response) {
-    $params = [];
-    return $this->get('renderer')->render($response, 'show.phtml', $params);
+    $urls = getUrls();
+    $params = ['urls' => $urls];
+    return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
 });
 
 $app->run();
