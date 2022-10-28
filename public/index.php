@@ -5,6 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
+use Carbon\Carbon;
 
 use function PageAnalyzer\Engine\getUrlErrors;
 use function PageAnalyzer\Engine\normalizeUrl;
@@ -34,6 +35,8 @@ $app->get('/', function ($request, $response) {
     ];
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 });
+
+$test = Carbon::now()->toDateTimeString();
 
 $app->post('/urls', function ($request, $response) {
     $url = $request->getParsedBodyParam('url');
