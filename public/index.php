@@ -13,6 +13,8 @@ use function PageAnalyzer\Engine\insertUrl;
 use function PageAnalyzer\Engine\getUrlId;
 use function PageAnalyzer\Engine\getUrlInfo;
 use function PageAnalyzer\Engine\getUrls;
+use function PageAnalyzer\Engine\insertUrlCheck;
+use function PageAnalyzer\Engine\getUrlChecks;
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -65,20 +67,18 @@ $app->post('/urls', function ($request, $response) use ($router) {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $id = getUrlId($normalizedUrlName);
+    $id = (string) getUrlId($normalizedUrlName);
     return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
 });
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
     $flash = $this->get('flash')->getMessages();
-    $id = $args['id'];
-    $urlInfo = getUrlInfo($id);
+    $urlId = $args['id'];
+    $url = getUrlInfo($urlId);
+    $urlChecks = getUrlChecks($urlId);
     $params = [
-        'url' => [
-            'id' => $urlInfo['id'],
-            'name' => $urlInfo['name'],
-            'date' => $urlInfo['created_at']
-        ],
+        'url' => $url,
+        'urlChecks' => $urlChecks,
         'flash' => $flash
     ];
     return $this->get('renderer')->render($response, 'show.phtml', $params);
@@ -86,8 +86,15 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 
 $app->get('/urls', function ($request, $response) {
     $urls = getUrls();
+    ///
     $params = ['urls' => $urls];
     return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
 })->setName('urls');
+
+$app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router) {
+    $urlId = $args['url_id'];
+    insertUrlCheck($urlId);
+    return $response->withRedirect($router->urlFor('url', ['id' => $urlId]), 302);
+});
 
 $app->run();

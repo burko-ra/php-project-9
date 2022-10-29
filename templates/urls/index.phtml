@@ -38,9 +38,9 @@
                         </tr>
                         <?php foreach ($urls as $url) : ?>
                             <tr>
-                                <td><?= $url['id'] ?></td>
-                                <td><a href="/urls/<?= $url['id'] ?>"><?= $url['name'] ?></a></td>
-                                <td></td>
+                                <td><?= $url['url_id'] ?></td>
+                                <td><a href="/urls/<?= $url['url_id'] ?>"><?= $url['url_name'] ?></a></td>
+                                <td><?= $url['url_last_check'] ?></td>
                                 <td></td>
                             </tr>
                         <?php endforeach ?>

@@ -94,7 +94,9 @@ function query($sql)
  */
 function isUrlUnique($url): bool
 {
-    $sql = "SELECT name FROM urls WHERE name = '{$url}'";
+    $sql = "SELECT name
+        FROM urls
+        WHERE name = '{$url}'";
     $matches = query($sql);
     return empty($matches);
 }
@@ -106,30 +108,35 @@ function isUrlUnique($url): bool
 function insertUrl($url): void
 {
     $dbh = connect();
-    $sqlInsertUrl = 'INSERT INTO urls (name, created_at) VALUES
-        (:name, :created_at)';
-    $queryInsertUrl = $dbh->prepare($sqlInsertUrl);
-    $queryInsertUrl->execute([':name' => $url, ':created_at' => Carbon::now()->toDateTimeString()]);
+    $createdAt = Carbon::now()->toDateTimeString();
+    $sql = "INSERT INTO urls (name, created_at) VALUES
+        (:name, :createdAt)";
+    $query = $dbh->prepare($sql);
+    $query->execute([':name' => $url, ':createdAt' => $createdAt]);
 }
 
 /**
  * @param string $url
- * @return int
+ * @return string
  */
 function getUrlId($url)
 {
-    $sql = "SELECT id FROM urls WHERE name = '{$url}'";
+    $sql = "SELECT id
+        FROM urls
+        WHERE name = '{$url}'";
     $matches = query($sql);
     return $matches[0]['id'];
 }
 
 /**
- * @param int $id
+ * @param int $urlId
  * @return array<mixed>
  */
-function getUrlInfo($id)
+function getUrlInfo($urlId)
 {
-    $sql = "SELECT id, name, created_at FROM urls WHERE id = '{$id}'";
+    $sql = "SELECT id, name, created_at
+        FROM urls
+        WHERE id = '{$urlId}'";
     $matches = query($sql);
     return $matches[0];
 }
@@ -139,7 +146,42 @@ function getUrlInfo($id)
  */
 function getUrls()
 {
-    $sql = "SELECT id, name FROM urls ORDER BY id DESC";
+    $sql = "SELECT urls.id as url_id,
+            urls.name as url_name,
+            MAX(url_checks.created_at) as url_last_check
+        FROM urls
+        LEFT JOIN url_checks
+        ON urls.id = url_checks.url_id
+        GROUP BY urls.id
+        ORDER BY urls.id DESC";
+    $matches = query($sql);
+    return $matches;
+}
+
+/**
+ * @param int $urlId
+ * @return void
+ */
+function insertUrlCheck($urlId): void
+{
+    $dbh = connect();
+    $createdAt = Carbon::now()->toDateTimeString();
+    $sql = "INSERT INTO url_checks (url_id, created_at) VALUES
+        (:urlId, :createdAt)";
+    $query = $dbh->prepare($sql);
+    $query->execute([':urlId' => $urlId, ':createdAt' => $createdAt]);
+}
+
+/**
+ * @param int $urlId
+ * @return array<mixed>
+ */
+function getUrlChecks($urlId)
+{
+    $sql = "SELECT id, created_at 
+        FROM url_checks
+        WHERE url_id = '{$urlId}'
+        ORDER BY id ASC";
     $matches = query($sql);
     return $matches;
 }
