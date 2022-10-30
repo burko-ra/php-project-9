@@ -6,7 +6,8 @@ CREATE TABLE urls (
 
 CREATE TABLE url_checks (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    url_id bigint REFERENCES urls(id),
+    url_id bigint REFERENCES urls(id) ON DELETE CASCADE,
+    status_code int,
     h1 text,
     title text,
     description text,
