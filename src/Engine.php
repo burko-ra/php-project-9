@@ -164,9 +164,10 @@ function getUrls()
 
 /**
  * @param int $urlId
+ * @param int $statusCode
  * @return void
  */
-function insertUrlCheck($urlId, $statusCode): void
+function insertUrlCheck(int $urlId, $statusCode): void
 {
     $dbh = connect();
     $createdAt = Carbon::now()->toDateTimeString();
@@ -180,7 +181,7 @@ function insertUrlCheck($urlId, $statusCode): void
  * @param int $urlId
  * @return array<mixed>
  */
-function getUrlChecks($urlId)
+function getUrlChecks(int $urlId)
 {
     $sql = "SELECT id, status_code, created_at 
         FROM url_checks
@@ -190,7 +191,11 @@ function getUrlChecks($urlId)
     return $matches;
 }
 
-function getStatusCode($url)
+/**
+ * @param string $url
+ * @return int|false
+ */
+function getStatusCode(string $url)
 {
     print "here";
     $client = new Client([
