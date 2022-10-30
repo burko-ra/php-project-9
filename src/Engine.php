@@ -4,6 +4,10 @@ namespace PageAnalyzer\Engine;
 
 use Valitron\Validator;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\ServerException;
 
 /**
  * @param string $url
@@ -146,14 +150,14 @@ function getUrlInfo($urlId)
  */
 function getUrls()
 {
-    $sql = "SELECT urls.id as url_id,
-            urls.name as url_name,
-            MAX(url_checks.created_at) as url_last_check
+    $sql = "SELECT DISTINCT ON (urls.id) urls.id as url_id,
+        urls.name as url_name,
+        url_checks.created_at as url_last_check,
+        url_checks.status_code as url_last_status_code
         FROM urls
         LEFT JOIN url_checks
         ON urls.id = url_checks.url_id
-        GROUP BY urls.id
-        ORDER BY urls.id DESC";
+        ORDER BY urls.id DESC, url_last_check DESC";
     $matches = query($sql);
     return $matches;
 }
@@ -162,14 +166,14 @@ function getUrls()
  * @param int $urlId
  * @return void
  */
-function insertUrlCheck($urlId): void
+function insertUrlCheck($urlId, $statusCode): void
 {
     $dbh = connect();
     $createdAt = Carbon::now()->toDateTimeString();
-    $sql = "INSERT INTO url_checks (url_id, created_at) VALUES
-        (:urlId, :createdAt)";
+    $sql = "INSERT INTO url_checks (url_id, status_code, created_at) VALUES
+        (:urlId, :statusCode, :createdAt)";
     $query = $dbh->prepare($sql);
-    $query->execute([':urlId' => $urlId, ':createdAt' => $createdAt]);
+    $query->execute([':urlId' => $urlId, ':statusCode' => $statusCode, ':createdAt' => $createdAt]);
 }
 
 /**
@@ -178,10 +182,30 @@ function insertUrlCheck($urlId): void
  */
 function getUrlChecks($urlId)
 {
-    $sql = "SELECT id, created_at 
+    $sql = "SELECT id, status_code, created_at 
         FROM url_checks
         WHERE url_id = '{$urlId}'
         ORDER BY id ASC";
     $matches = query($sql);
     return $matches;
+}
+
+function getStatusCode($url)
+{
+    print "here";
+    $client = new Client([
+        'base_uri' => $url,
+        'timeout'  => 3.0,
+        'allow_redirects' => false
+    ]);
+    try {
+        $request = $client->request('GET', '');
+    } catch (ConnectException $e) {
+        return false;
+    } catch (ClientException $e) {
+        return $e->getResponse()->getStatusCode();
+    } catch (ServerException $e) {
+        return $e->getResponse()->getStatusCode();
+    }
+    return $request->getStatusCode();
 }

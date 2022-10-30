@@ -15,6 +15,7 @@ use function PageAnalyzer\Engine\getUrlInfo;
 use function PageAnalyzer\Engine\getUrls;
 use function PageAnalyzer\Engine\insertUrlCheck;
 use function PageAnalyzer\Engine\getUrlChecks;
+use function PageAnalyzer\Engine\getStatusCode;
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -86,14 +87,21 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 
 $app->get('/urls', function ($request, $response) {
     $urls = getUrls();
-    ///
     $params = ['urls' => $urls];
     return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
 })->setName('urls');
 
 $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router) {
     $urlId = $args['url_id'];
-    insertUrlCheck($urlId);
+    $url = getUrlInfo($urlId);
+    $urlName = $url['name'];
+    $statusCode = getStatusCode($urlName);
+    if ($statusCode === false) {
+        $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
+    } else {
+        $this->get('flash')->addMessage('success', 'Страница успешно проверена');
+        insertUrlCheck($urlId, $statusCode);
+    }
     return $response->withRedirect($router->urlFor('url', ['id' => $urlId]), 302);
 });
 
