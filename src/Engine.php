@@ -8,6 +8,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\RequestException;
+use DiDom\Document;
+
+use function DI\value;
 
 /**
  * @param string $url
@@ -162,20 +166,7 @@ function getUrls()
     return $matches;
 }
 
-/**
- * @param int $urlId
- * @param int $statusCode
- * @return void
- */
-function insertUrlCheck(int $urlId, $statusCode): void
-{
-    $dbh = connect();
-    $createdAt = Carbon::now()->toDateTimeString();
-    $sql = "INSERT INTO url_checks (url_id, status_code, created_at) VALUES
-        (:urlId, :statusCode, :createdAt)";
-    $query = $dbh->prepare($sql);
-    $query->execute([':urlId' => $urlId, ':statusCode' => $statusCode, ':createdAt' => $createdAt]);
-}
+
 
 /**
  * @param int $urlId
@@ -183,7 +174,7 @@ function insertUrlCheck(int $urlId, $statusCode): void
  */
 function getUrlChecks(int $urlId)
 {
-    $sql = "SELECT id, status_code, created_at 
+    $sql = "SELECT * 
         FROM url_checks
         WHERE url_id = '{$urlId}'
         ORDER BY id ASC";
@@ -193,24 +184,89 @@ function getUrlChecks(int $urlId)
 
 /**
  * @param string $url
- * @return int|false
+ * @param Client $client
+ * @return array<int|string>|false
  */
-function getStatusCode(string $url)
+function getParsedData(string $url, Client $client)
 {
-    print "here";
-    $client = new Client([
-        'base_uri' => $url,
-        'timeout'  => 3.0,
-        'allow_redirects' => false
-    ]);
+    $createdAt = Carbon::now()->toDateTimeString();
+    $parsedData = ['created_at' => $createdAt];
+
     try {
-        $request = $client->request('GET', '');
+        $responce = $client->get($url);
+    } catch (ClientException $e) {
+        $parsedData['status_code'] = $e->getResponse()->getStatusCode();
+        return $parsedData;
+    } catch (ServerException $e) {
+        $parsedData['status_code'] = $e->getResponse()->getStatusCode();
+        return $parsedData;
     } catch (ConnectException $e) {
         return false;
-    } catch (ClientException $e) {
-        return $e->getResponse()->getStatusCode();
-    } catch (ServerException $e) {
-        return $e->getResponse()->getStatusCode();
+    } catch (RequestException $e) {
+        return false;
     }
-    return $request->getStatusCode();
+
+    $statusCode = $responce->getStatusCode();
+    $parsedData['status_code'] = $statusCode;
+
+    if ($statusCode !== 200) {
+        return $parsedData;
+    }
+
+    $html = $responce->getBody()->getContents();
+    $document = new Document($html);
+
+    $headers = $document->find('h1');
+    if (count($headers) > 0) {
+        /**
+         * @var \DiDom\Element $h1
+         */
+        $h1 = $headers[0];
+        $parsedData['h1'] = $h1->text();
+    }
+
+    $description = $document->find('meta[name=description]');
+    if (count($description) > 0) {
+        $parsedData['description'] = $description[0]->getAttribute('content') ?? '';
+    }
+
+    $titles = $document->find('title');
+    if (count($titles) > 0) {
+        /**
+         * @var \DiDom\Element $title
+         */
+        $title = $titles[0];
+        $parsedData['title'] = $title->text();
+    }
+
+    return $parsedData;
+}
+
+/**
+ * @param int $urlId
+ * @param array<mixed> $parsedData
+ * @return void
+ */
+function insertUrlCheck(int $urlId, $parsedData): void
+{
+    $dbh = connect();
+    $createdAt = $parsedData['created_at'];
+    $statusCode = $parsedData['status_code'];
+    $h1 = $parsedData['h1'] ?? '';
+    $title = $parsedData['title'] ?? '';
+    $description = $parsedData['description'] ?? '';
+    $sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) VALUES
+        (:urlId, :statusCode, :h1, :title, :description, :createdAt)";
+    $query = $dbh->prepare($sql);
+    $query->execute([
+        ':urlId' => $urlId,
+        ':statusCode' => $statusCode,
+        'h1' => $h1,
+        'title' => $title,
+        'description' => $description,
+
+
+
+        ':createdAt' => $createdAt
+    ]);
 }

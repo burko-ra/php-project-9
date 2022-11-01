@@ -15,7 +15,8 @@ use function PageAnalyzer\Engine\getUrlInfo;
 use function PageAnalyzer\Engine\getUrls;
 use function PageAnalyzer\Engine\insertUrlCheck;
 use function PageAnalyzer\Engine\getUrlChecks;
-use function PageAnalyzer\Engine\getStatusCode;
+use function PageAnalyzer\Engine\getParsedData;
+use GuzzleHttp\Client;
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -30,6 +31,12 @@ $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
 
 $router = $app->getRouteCollector()->getRouteParser();
+
+// $client = new Client([
+//     'base_uri' => $url,
+//     'timeout'  => 5.0,
+//     'allow_redirects' => false
+// ]);
 
 session_start();
 
@@ -95,13 +102,25 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $urlId = $args['url_id'];
     $url = getUrlInfo($urlId);
     $urlName = $url['name'];
-    $statusCode = getStatusCode($urlName);
-    if ($statusCode === false) {
+    $client = new Client([
+        'base_uri' => $urlName,
+        'timeout'  => 5.0,
+        'allow_redirects' => false
+    ]);
+    $parsedData = getParsedData($urlName, $client);
+    if ($parsedData === false) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     } else {
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
-        insertUrlCheck($urlId, $statusCode);
+        insertUrlCheck($urlId, $parsedData);
     }
+
+    // $params = [
+    //     'url' => $url,
+    //     'urlChecks' => [],
+    //     'flash' => []
+    // ];
+    // return $this->get('renderer')->render($response, 'show.phtml', $params);
     return $response->withRedirect($router->urlFor('url', ['id' => $urlId]), 302);
 });
 
