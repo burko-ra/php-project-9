@@ -31,7 +31,6 @@ class Validator
             $validator->rule('required', 'host');
             $validator->rule('lengthMax', 'name', 255);
             $validator->rule('url', 'name');
-            //$validator->rule('regex', 'scheme', '/^[a-z0-9][a-z0-9\.\-]+\.[a-z]{2,}$/i');
             $validator->validate();
 
             if (is_bool($validator->errors())) {
