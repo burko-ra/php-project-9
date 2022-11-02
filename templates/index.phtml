@@ -21,9 +21,8 @@
                                 <input type="text" name="url[name]" value="<?= $url['name'] ?>" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com">
                                 <div class="invalid-feedback">
                                     <?php foreach ($errors as $message) : ?>
-                                        <div><?= $message ?></div>
+                                        <div class="invalid-feedback"><?= $message ?></div>
                                     <?php endforeach ?>
-                                    <!-- <?php var_dump($errors) ?> -->
                                 </div>
                             <?php endif ?>
                         </div>
