@@ -57,9 +57,9 @@ class CheckRepo
             ':urlId' => $check['urlId'],
             ':statusCode' => $check['statusCode'],
             ':createdAt' => $check['createdAt'],
-            'h1' => $check['h1'] ?? '',
-            'title' => $check['title'] ?? '',
-            'description' => $check['description'] ?? ''
+            ':h1' => $check['h1'] ?? '',
+            ':title' => $check['title'] ?? '',
+            ':description' => $check['description'] ?? ''
         ]);
     }
 }

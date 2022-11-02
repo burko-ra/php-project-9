@@ -4,8 +4,16 @@ namespace PageAnalyzer;
 
 class Validator
 {
+    public function normalize(string $urlName): string
+    {
+        $urlParts = parse_url(strtolower($urlName));
+        $scheme = $urlParts['scheme'] ?? '';
+        $host = $urlParts['host'] ?? '';
+        return $scheme . "://" . $host;
+    }
+
     /**
-     * @return array<string>
+     * @return array<int, string>
      */
     public function validate(string $urlName)
     {
@@ -13,9 +21,9 @@ class Validator
 
         $urlParts = parse_url(trim($urlName));
         if (!$urlParts) {
-            $errors['url'] = 'Некорректный URL';
+            $errors[] = 'Некорректный URL';
         } elseif ($urlName === '') {
-            $errors['url'] = 'URL не должен быть пустым';
+            $errors[] = 'URL не должен быть пустым';
         } else {
             $urlParts['name'] = $this->normalize($urlName);
             $validator = new \Valitron\Validator($urlParts);
@@ -29,18 +37,10 @@ class Validator
             }
 
             if (!empty($validator->errors())) {
-                $errors['url'] = 'Некорректный URL';
+                $errors[] = 'Некорректный URL';
             }
         }
 
         return $errors;
-    }
-
-    public function normalize(string $urlName): string
-    {
-        $urlParts = parse_url(strtolower($urlName));
-        $scheme = $urlParts['scheme'] ?? '';
-        $host = $urlParts['host'] ?? '';
-        return $scheme . "://" . $host;
     }
 }

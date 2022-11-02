@@ -110,7 +110,6 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     $parser = new Parser($urlName);
     try {
         $statusCode = $parser->getStatusCode();
-        $this->get('flash')->addMessage('success', 'Страница успешно проверена');
 
         $html = $parser->getHtml();
         $webPage = new WebPage($html);
@@ -126,9 +125,9 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
             $check['title'] = $webPage->getFirstTagInnerText('title') ?? '';
             $check['description'] = $webPage->getDescription() ?? '';
         }
-        var_dump($check);
 
         $checkRepo->save($check);
+        $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }

@@ -14,6 +14,19 @@ class WebPage
     /**
      * @return string|null
      */
+    public function getDescription()
+    {
+        $metaDescriptionMatches = $this->document->find('meta[name=description]');
+        if (count($metaDescriptionMatches) > 0) {
+            $firstTag = $metaDescriptionMatches[0];
+            return $firstTag->getAttribute('content') ?? '';
+        }
+        return null;
+    }
+
+    /**
+     * @return string|null
+     */
     public function getFirstTagInnerText(string $tag)
     {
         $matches = $this->document->find($tag);
@@ -23,19 +36,6 @@ class WebPage
              */
             $firstTag = $matches[0];
             return $firstTag->text();
-        }
-        return null;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDescription()
-    {
-        $metaDescriptionMatches = $this->document->find('meta[name=description]');
-        if (count($metaDescriptionMatches) > 0) {
-            $firstTag = $metaDescriptionMatches[0];
-            return $firstTag->getAttribute('content') ?? '';
         }
         return null;
     }
