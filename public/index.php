@@ -57,7 +57,7 @@ $app->post('/urls', function ($request, $response) use ($router, $urlRepo, $vali
             'url' => ['name' => $urlName],
             'errors' => $errors
         ];
-        return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params)->with;
+        return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
     }
 
     $normalizedUrlName = $validator->normalize($urlName);
