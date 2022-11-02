@@ -6,17 +6,13 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
 
-use function PageAnalyzer\Engine\getUrlErrors;
-use function PageAnalyzer\Engine\normalizeUrl;
-use function PageAnalyzer\Engine\isUrlUnique;
-use function PageAnalyzer\Engine\insertUrl;
-use function PageAnalyzer\Engine\getUrlId;
-use function PageAnalyzer\Engine\getUrlInfo;
-use function PageAnalyzer\Engine\getUrls;
-use function PageAnalyzer\Engine\insertUrlCheck;
-use function PageAnalyzer\Engine\getUrlChecks;
-use function PageAnalyzer\Engine\getParsedData;
-use GuzzleHttp\Client;
+use Carbon\Carbon;
+use PageAnalyzer\CheckRepo;
+use PageAnalyzer\Connection;
+use PageAnalyzer\Parser;
+use PageAnalyzer\UrlRepo;
+use PageAnalyzer\Validator;
+use PageAnalyzer\WebPage;
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -32,11 +28,10 @@ $app->add(MethodOverrideMiddleware::class);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-// $client = new Client([
-//     'base_uri' => $url,
-//     'timeout'  => 5.0,
-//     'allow_redirects' => false
-// ]);
+$connection = new Connection();
+$urlRepo = new UrlRepo($connection);
+$checkRepo = new CheckRepo($connection);
+$validator = new Validator();
 
 session_start();
 
@@ -52,38 +47,43 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('root');
 
-$app->post('/urls', function ($request, $response) use ($router) {
+$app->post('/urls', function ($request, $response) use ($router, $urlRepo, $validator) {
     $url = $request->getParsedBodyParam('url');
-    $urlName = $url['name'];
+    $urlName = htmlspecialchars($url['name']);
 
-    $errors = getUrlErrors($urlName);
+    $errors = $validator->validate($urlName);
 
     if (count($errors) !== 0) {
         $params = [
-            'url' => ['name' => $url['name']],
+            'url' => ['name' => $urlName],
             'errors' => $errors
         ];
         return $this->get('renderer')->render($response, 'index.phtml', $params);
     }
 
-    $normalizedUrlName = normalizeUrl($urlName);
+    $normalizedUrlName = $validator->normalize($urlName);
 
-    if (isUrlUnique($normalizedUrlName)) {
-        insertUrl($normalizedUrlName);
+    $duplicate = $urlRepo->findByName($normalizedUrlName);
+    if ($duplicate === false) {
+        $urlRepo->save($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $id = (string) getUrlId($normalizedUrlName);
+    $newUrl = $urlRepo->findByName($normalizedUrlName);
+    if ($newUrl === false) {
+        throw new \Exception('Cannot access to Url');
+    }
+    $id = (string) $newUrl['id'];
     return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
 });
 
-$app->get('/urls/{id}', function ($request, $response, array $args) {
+$app->get('/urls/{id}', function ($request, $response, array $args) use ($urlRepo, $checkRepo) {
     $flash = $this->get('flash')->getMessages();
-    $urlId = $args['id'];
-    $url = getUrlInfo($urlId);
-    $urlChecks = getUrlChecks($urlId);
+    $urlId = htmlspecialchars($args['id']);
+    $url = $urlRepo->findById($urlId);
+    $urlChecks = $checkRepo->getById($urlId);
     $params = [
         'url' => $url,
         'urlChecks' => $urlChecks,
@@ -92,27 +92,39 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     return $this->get('renderer')->render($response, 'show.phtml', $params);
 })->setName('url');
 
-$app->get('/urls', function ($request, $response) {
-    $urls = getUrls();
+$app->get('/urls', function ($request, $response) use ($urlRepo) {
+    $urls = $urlRepo->all();
     $params = ['urls' => $urls];
     return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
 })->setName('urls');
 
-$app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router) {
-    $urlId = $args['url_id'];
-    $url = getUrlInfo($urlId);
+$app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router, $urlRepo, $checkRepo) {
+    $urlId = htmlspecialchars($args['url_id']);
+
+    $url = $urlRepo->findById($urlId);
+    if ($url === false) {
+        throw new \Exception('Cannot access to Url');
+    }
+
     $urlName = $url['name'];
-    $client = new Client([
-        'base_uri' => $urlName,
-        'timeout'  => 5.0,
-        'allow_redirects' => false
-    ]);
-    $parsedData = getParsedData($urlName, $client);
-    if ($parsedData === false) {
-        $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
-    } else {
+    $parser = new Parser($urlName);
+    try {
+        $statusCode = $parser->getStatusCode();
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
-        insertUrlCheck($urlId, $parsedData);
+
+        $html = $parser->getHtml();
+        $webPage = new WebPage($html);
+        $check = [
+            'urlId' => $urlId,
+            'statusCode' => $statusCode,
+            'createdAt' => Carbon::now()->toDateTimeString(),
+            'h1' => $webPage->getFirstTagInnerText('h1') ?? '',
+            'title' => $webPage->getFirstTagInnerText('title') ?? '',
+            'description' => $webPage->getDescription() ?? ''
+        ];
+        $checkRepo->save($check);
+    } catch (\Exception $e) {
+        $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }
 
     // $params = [
