@@ -114,25 +114,25 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
 
         $html = $parser->getHtml();
         $webPage = new WebPage($html);
+
         $check = [
             'urlId' => $urlId,
             'statusCode' => $statusCode,
             'createdAt' => Carbon::now()->toDateTimeString(),
-            'h1' => $webPage->getFirstTagInnerText('h1') ?? '',
-            'title' => $webPage->getFirstTagInnerText('title') ?? '',
-            'description' => $webPage->getDescription() ?? ''
         ];
+
+        if ($statusCode === 200) {
+            $check['h1'] = $webPage->getFirstTagInnerText('h1') ?? '';
+            $check['title'] = $webPage->getFirstTagInnerText('title') ?? '';
+            $check['description'] = $webPage->getDescription() ?? '';
+        }
+        var_dump($check);
+
         $checkRepo->save($check);
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }
 
-    // $params = [
-    //     'url' => $url,
-    //     'urlChecks' => [],
-    //     'flash' => []
-    // ];
-    // return $this->get('renderer')->render($response, 'show.phtml', $params);
     return $response->withRedirect($router->urlFor('url', ['id' => $urlId]), 302);
 });
 

@@ -56,10 +56,10 @@ class CheckRepo
         $query->execute([
             ':urlId' => $check['urlId'],
             ':statusCode' => $check['statusCode'],
-            'h1' => $check['h1'],
-            'title' => $check['title'],
-            'description' => $check['description'],
-            ':createdAt' => $check['createdAt']
+            ':createdAt' => $check['createdAt'],
+            'h1' => $check['h1'] ?? '',
+            'title' => $check['title'] ?? '',
+            'description' => $check['description'] ?? ''
         ]);
     }
 }
