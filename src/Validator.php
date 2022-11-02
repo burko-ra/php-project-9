@@ -11,7 +11,7 @@ class Validator
     {
         $errors = [];
 
-        $urlParts = parse_url($urlName);
+        $urlParts = parse_url(trim($urlName));
         if (!$urlParts) {
             $errors['url'] = 'Некорректный URL';
         } elseif ($urlName === '') {
