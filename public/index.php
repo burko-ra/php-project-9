@@ -52,7 +52,6 @@ $app->post('/urls', function ($request, $response) use ($router, $urlRepo, $vali
     $urlName = htmlspecialchars($url['name']);
 
     $errors = $validator->validate($urlName);
-
     if (count($errors) !== 0) {
         $params = [
             'url' => ['name' => $urlName],
@@ -76,6 +75,11 @@ $app->post('/urls', function ($request, $response) use ($router, $urlRepo, $vali
         throw new \Exception('Cannot access to Url');
     }
     $id = (string) $newUrl['id'];
+    // $params = [
+    //     'url' => ['name' => $urlName],
+    //     'errors' => $errors
+    // ];
+    // return $this->get('renderer')->render($response, 'index.phtml', $params);
     return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
 });
 

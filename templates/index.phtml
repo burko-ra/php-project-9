@@ -19,11 +19,9 @@
                                 <input type="text" name="url[name]" value="<?= $url['name'] ?>" class="form-control form-control-lg" placeholder="https://www.example.com">
                             <?php else : ?>
                                 <input type="text" name="url[name]" value="<?= $url['name'] ?>" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com">
-                                <div class="invalid-feedback">
                                     <?php foreach ($errors as $message) : ?>
                                         <div class="invalid-feedback"><?= $message ?></div>
                                     <?php endforeach ?>
-                                </div>
                             <?php endif ?>
                         </div>
                         <div class="col-2">
