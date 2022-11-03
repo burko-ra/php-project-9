@@ -7,6 +7,7 @@ use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
 
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use PageAnalyzer\CheckRepo;
 use PageAnalyzer\Connection;
 use PageAnalyzer\Parser;
@@ -111,12 +112,9 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
     }
 
     $urlName = $url['name'];
-    $parser = new Parser($urlName);
+    $parser = new Parser();
     try {
-        $statusCode = $parser->getStatusCode();
-
-        $html = $parser->getHtml();
-        $webPage = new WebPage($html);
+        $statusCode = $parser->getStatusCode($urlName);
 
         $check = [
             'urlId' => $urlId,
@@ -125,6 +123,8 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
         ];
 
         if ($statusCode === 200) {
+            $html = $parser->getHtml($urlName);
+            $webPage = new WebPage($html);
             $check['h1'] = $webPage->getFirstTagInnerText('h1') ?? '';
             $check['title'] = $webPage->getFirstTagInnerText('title') ?? '';
             $check['description'] = $webPage->getDescription() ?? '';

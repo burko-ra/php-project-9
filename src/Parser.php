@@ -10,31 +10,34 @@ class Parser
 {
     public string $urlName;
 
-    protected Client $client;
+    public Client $client;
 
-    public function __construct(string $urlName, float $timeout = 5.0, bool $allowRedirects = false)
+    /**
+     * @param Client|null $client
+     * @return array<mixed>
+     */
+    public function __construct($client = null)
     {
-        $this->urlName = $urlName;
-        $this->client = new Client([
-            'base_uri' => $urlName,
-            'timeout'  => $timeout,
-            'allow_redirects' => $allowRedirects
+        $this->client = $client ?? new Client([
+            'timeout'  => 5.0,
+            'allow_redirects' => false
         ]);
     }
 
-    public function getHtml(): string
+    public function getHtml(string $urlName): string
     {
         return $this->client
-            ->get($this->urlName)
+            //->get($this->urlName)
+            ->get($urlName)
             ->getBody()
             ->getContents();
     }
 
-    public function getStatusCode(): int
+    public function getStatusCode(string $urlName): int
     {
         try {
             return $this->client
-                ->get($this->urlName)
+                ->get($urlName)
                 ->getStatusCode();
         } catch (ClientException $e) {
             return $e->getResponse()->getStatusCode();
