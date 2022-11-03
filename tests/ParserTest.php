@@ -1,5 +1,7 @@
 <?php
 
+namespace PageAnalyzer\Tests;
+
 use PHPUnit\Framework\TestCase;
 use PageAnalyzer\Parser;
 
