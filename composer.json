@@ -5,7 +5,12 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "PageAnalyzer\\": ["src", "tests"]
+            "PageAnalyzer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "authors": [

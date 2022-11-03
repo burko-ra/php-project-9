@@ -1,6 +1,6 @@
 <?php
 
-namespace PageAnalyzer\Tests;
+namespace Tests;
 
 use PageAnalyzer\Validator;
 use PHPUnit\Framework\TestCase;
