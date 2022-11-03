@@ -12,31 +12,34 @@ class Parser
 
     public Client $client;
 
-    /**
-     * @param Client|null $client
-     * @return array<mixed>
-     */
-    public function __construct($client = null)
+    public function __construct()
     {
-        $this->client = $client ?? new Client([
+        $this->client = new Client([
             'timeout'  => 5.0,
             'allow_redirects' => false
         ]);
     }
 
-    public function getHtml(string $urlName): string
+    /**
+     * @param Client|null $client
+     */
+    public function getHtml(string $urlName, $client = null): string
     {
+        $client = $client ?? $this->client;
         return $this->client
-            //->get($this->urlName)
             ->get($urlName)
             ->getBody()
             ->getContents();
     }
 
-    public function getStatusCode(string $urlName): int
+    /**
+     * @param Client|null $client
+     */
+    public function getStatusCode(string $urlName, $client = null): int
     {
+        $client = $client ?? $this->client;
         try {
-            return $this->client
+            return $client
                 ->get($urlName)
                 ->getStatusCode();
         } catch (ClientException $e) {
