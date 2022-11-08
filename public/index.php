@@ -34,7 +34,9 @@ $urlRepo = new UrlRepo($connection);
 $checkRepo = new CheckRepo($connection);
 $validator = new Validator();
 
-session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+} 
 
 /**
  * @var Container $this
