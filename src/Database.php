@@ -26,26 +26,22 @@ class Database
 
     /**
      * @param string $sql
+     * @param array<mixed> $params
      * @return array<mixed>
      */
-    public function query($sql)
+    public function query(string $sql, $params = [])
     {
-        $matches = $this->dbh->query($sql);
-        if (!$matches) {
+        $sth = $this->dbh->prepare($sql);
+        $res = $sth->execute($params);
+        if (!$res) {
             throw new \Exception('Cannot execute the query');
         }
 
-        $result = $matches->fetchAll(0);
-        if ($result === false) {
+        $matches = $sth->fetchAll(0);
+        if ($matches === false) {
             throw new \Exception('Expect array, boolean given');
         }
 
-        return $result;
-    }
-
-    public function prepareAndExecute(string $sql, $params = [])
-    {
-        $sth = $this->dbh->prepare($sql);
-        $sth->execute($params);
+        return $matches;
     }
 }

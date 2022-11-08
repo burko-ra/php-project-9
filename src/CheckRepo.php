@@ -20,9 +20,9 @@ class CheckRepo
     {
         $sql = "SELECT * 
             FROM url_checks
-            WHERE url_id = '{$urlId}'
+            WHERE url_id = :urlId
             ORDER BY id DESC";
-        return $this->db->query($sql);
+        return $this->db->query($sql, [':urlId' => $urlId]);
     }
 
     /**
@@ -41,6 +41,6 @@ class CheckRepo
             ':title' => $check['title'] ?? '',
             ':description' => $check['description'] ?? ''
         ];
-        $this->db->prepareAndExecute($sql, $params);
+        $this->db->query($sql, $params);
     }
 }

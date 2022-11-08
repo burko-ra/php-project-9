@@ -32,24 +32,24 @@ class UrlRepo
     /**
      * @return array<mixed>|false
      */
-    public function findById(string $urlId)
+    public function getById(string $urlId)
     {
         $sql = "SELECT *
             FROM urls
-            WHERE id = '{$urlId}'";
-        $urls = $this->db->query($sql);
+            WHERE id = :urlId";
+        $urls = $this->db->query($sql, [':urlId' => $urlId]);
         return empty($urls) ? false : $urls[0];
     }
 
     /**
      * @return array<mixed>|false
      */
-    public function findByName(string $urlName)
+    public function getByName(string $urlName)
     {
         $sql = "SELECT *
             FROM urls
-            WHERE name = '{$urlName}'";
-        $urls = $this->db->query($sql);
+            WHERE name = :urlName";
+        $urls = $this->db->query($sql, [':urlName' => $urlName]);
         return empty($urls) ? false : $urls[0];
     }
 
@@ -65,6 +65,6 @@ class UrlRepo
             ':name' => $urlName,
             ':createdAt' => $createdAt
         ];
-        $this->db->prepareAndExecute($sql, $params);
+        $this->db->query($sql, $params);
     }
 }

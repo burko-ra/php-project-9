@@ -36,7 +36,7 @@ $validator = new Validator();
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
-} 
+}
 
 /**
  * @var Container $this
@@ -65,7 +65,7 @@ $app->post('/urls', function ($request, $response) use ($router, $urlRepo, $vali
 
     $normalizedUrlName = $validator->normalize($urlName);
 
-    $duplicate = $urlRepo->findByName($normalizedUrlName);
+    $duplicate = $urlRepo->getByName($normalizedUrlName);
     if ($duplicate === false) {
         $urlRepo->save($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
@@ -73,23 +73,18 @@ $app->post('/urls', function ($request, $response) use ($router, $urlRepo, $vali
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $newUrl = $urlRepo->findByName($normalizedUrlName);
+    $newUrl = $urlRepo->getByName($normalizedUrlName);
     if ($newUrl === false) {
         throw new \Exception('Cannot access to Url');
     }
     $id = (string) $newUrl['id'];
-    // $params = [
-    //     'url' => ['name' => $urlName],
-    //     'errors' => $errors
-    // ];
-    // return $this->get('renderer')->render($response, 'index.phtml', $params);
     return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
 });
 
 $app->get('/urls/{id}', function ($request, $response, array $args) use ($urlRepo, $checkRepo) {
     $flash = $this->get('flash')->getMessages();
     $urlId = htmlspecialchars($args['id']);
-    $url = $urlRepo->findById($urlId);
+    $url = $urlRepo->getById($urlId);
     $urlChecks = $checkRepo->getById($urlId);
     $params = [
         'url' => $url,
@@ -108,7 +103,7 @@ $app->get('/urls', function ($request, $response) use ($urlRepo) {
 $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router, $urlRepo, $checkRepo) {
     $urlId = htmlspecialchars($args['url_id']);
 
-    $url = $urlRepo->findById($urlId);
+    $url = $urlRepo->getById($urlId);
     if ($url === false) {
         throw new \Exception('Cannot access to Url');
     }
