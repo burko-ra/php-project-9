@@ -3,34 +3,14 @@
 namespace PageAnalyzer;
 
 use Carbon\Carbon;
-use PageAnalyzer\Connection;
 
 class UrlRepo
 {
-    protected \PDO $dbh;
+    protected Database $db;
 
-    public function __construct(Connection $connection)
+    public function __construct(Database $database)
     {
-        $this->dbh = $connection->dbh;
-    }
-
-    /**
-     * @param string $sql
-     * @return array<mixed>
-     */
-    protected function query($sql)
-    {
-        $matches = $this->dbh->query($sql);
-        if (!$matches) {
-            throw new \Exception('Cannot execute the query');
-        }
-
-        $result = $matches->fetchAll(0);
-        if ($result === false) {
-            throw new \Exception('Expect array, boolean given');
-        }
-
-        return $result;
+        $this->db = $database;
     }
 
     /**
@@ -46,7 +26,7 @@ class UrlRepo
         LEFT JOIN url_checks
         ON urls.id = url_checks.url_id
         ORDER BY urls.id DESC, url_last_check DESC";
-        return $this->query($sql);
+        return $this->db->query($sql);
     }
 
     /**
@@ -57,7 +37,7 @@ class UrlRepo
         $sql = "SELECT *
             FROM urls
             WHERE id = '{$urlId}'";
-        $urls = $this->query($sql);
+        $urls = $this->db->query($sql);
         return empty($urls) ? false : $urls[0];
     }
 
@@ -69,7 +49,7 @@ class UrlRepo
         $sql = "SELECT *
             FROM urls
             WHERE name = '{$urlName}'";
-        $urls = $this->query($sql);
+        $urls = $this->db->query($sql);
         return empty($urls) ? false : $urls[0];
     }
 
@@ -81,7 +61,10 @@ class UrlRepo
         $createdAt = Carbon::now()->toDateTimeString();
         $sql = "INSERT INTO urls (name, created_at) VALUES
             (:name, :createdAt)";
-        $query = $this->dbh->prepare($sql);
-        $query->execute([':name' => $urlName, ':createdAt' => $createdAt]);
+        $params = [
+            ':name' => $urlName,
+            ':createdAt' => $createdAt
+        ];
+        $this->db->prepareAndExecute($sql, $params);
     }
 }

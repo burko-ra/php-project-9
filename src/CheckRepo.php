@@ -2,34 +2,15 @@
 
 namespace PageAnalyzer;
 
-use PageAnalyzer\Connection;
+use PageAnalyzer\Database;
 
 class CheckRepo
 {
-    protected \PDO $dbh;
+    protected Database $db;
 
-    public function __construct(Connection $connection)
+    public function __construct(Database $database)
     {
-        $this->dbh = $connection->dbh;
-    }
-
-    /**
-     * @param string $sql
-     * @return array<mixed>
-     */
-    protected function query($sql)
-    {
-        $matches = $this->dbh->query($sql);
-        if (!$matches) {
-            throw new \Exception('Cannot execute the query');
-        }
-
-        $result = $matches->fetchAll(0);
-        if ($result === false) {
-            throw new \Exception('Expect array, boolean given');
-        }
-
-        return $result;
+        $this->db = $database;
     }
 
     /**
@@ -41,7 +22,7 @@ class CheckRepo
             FROM url_checks
             WHERE url_id = '{$urlId}'
             ORDER BY id DESC";
-        return $this->query($sql);
+        return $this->db->query($sql);
     }
 
     /**
@@ -52,14 +33,14 @@ class CheckRepo
     {
         $sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) VALUES
             (:urlId, :statusCode, :h1, :title, :description, :createdAt)";
-        $query = $this->dbh->prepare($sql);
-        $query->execute([
+        $params = [
             ':urlId' => $check['urlId'],
             ':statusCode' => $check['statusCode'],
             ':createdAt' => $check['createdAt'],
             ':h1' => $check['h1'] ?? '',
             ':title' => $check['title'] ?? '',
             ':description' => $check['description'] ?? ''
-        ]);
+        ];
+        $this->db->prepareAndExecute($sql, $params);
     }
 }

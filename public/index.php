@@ -9,7 +9,7 @@ use Slim\Middleware\MethodOverrideMiddleware;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use PageAnalyzer\CheckRepo;
-use PageAnalyzer\Connection;
+use PageAnalyzer\Database;
 use PageAnalyzer\Parser;
 use PageAnalyzer\UrlRepo;
 use PageAnalyzer\Validator;
@@ -29,9 +29,9 @@ $app->add(MethodOverrideMiddleware::class);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-$connection = new Connection();
-$urlRepo = new UrlRepo($connection);
-$checkRepo = new CheckRepo($connection);
+$database = new Database();
+$urlRepo = new UrlRepo($database);
+$checkRepo = new CheckRepo($database);
 $validator = new Validator();
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
