@@ -40,7 +40,7 @@ class CheckRepo
         $sql = "SELECT * 
             FROM url_checks
             WHERE url_id = '{$urlId}'
-            ORDER BY id ASC";
+            ORDER BY id DESC";
         return $this->query($sql);
     }
 
