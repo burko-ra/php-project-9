@@ -47,6 +47,9 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+/**
+ * @var Container $this
+ */
 $app->get('/', function ($request, $response) {
     $params = [
         'url' => ['name' => ''],

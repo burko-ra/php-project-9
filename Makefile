@@ -2,14 +2,8 @@ install:
 	composer install
 
 lint:
-	composer exec --verbose phpcs -- --standard=PSR12 public src templates tests
-	composer exec --verbose phpstan -- --level=6 analyse public src templates tests
+	composer exec --verbose phpcs -- --standard=PSR12 public src templates
+	composer exec --verbose phpstan -- --level=6 analyse public src templates
 
 start:
 	php -S 0.0.0.0:${PORT:-8000} -t public
-
-test:
-	composer exec --verbose phpunit tests
-
-test-coverage:
-	composer exec --verbose phpunit tests -- --coverage-clover build/logs/clover.xml
