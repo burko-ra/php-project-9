@@ -30,7 +30,7 @@ class UrlRepo
     }
 
     /**
-     * @return array<mixed>|false
+     * @return array<mixed>|null
      */
     public function getById(string $urlId)
     {
@@ -38,7 +38,7 @@ class UrlRepo
             FROM urls
             WHERE id = :urlId";
         $urls = $this->db->query($sql, [':urlId' => $urlId]);
-        return empty($urls) ? false : $urls[0];
+        return empty($urls) ? null : $urls[0];
     }
 
     /**

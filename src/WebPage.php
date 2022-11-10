@@ -31,9 +31,6 @@ class WebPage
     {
         $matches = $this->document->find($tag);
         if (count($matches) > 0) {
-            /**
-             * @var \DiDom\Element $firstTag
-             */
             $firstTag = $matches[0];
             return $firstTag->text();
         }

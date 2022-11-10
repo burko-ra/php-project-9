@@ -7,20 +7,34 @@ use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
 
 use Carbon\Carbon;
-use GuzzleHttp\Client;
 use PageAnalyzer\CheckRepo;
 use PageAnalyzer\Database;
 use PageAnalyzer\Parser;
+use PageAnalyzer\UrlNormalizer;
 use PageAnalyzer\UrlRepo;
-use PageAnalyzer\Validator;
 use PageAnalyzer\WebPage;
+use Valitron\Validator;
 
 $container = new Container();
+
 $container->set('renderer', function () {
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
 });
+
 $container->set('flash', function () {
     return new \Slim\Flash\Messages();
+});
+
+$container->set('database', function () {
+    return new Database();
+});
+
+$container->set('urlRepo', function () {
+    return new UrlRepo(new Database());
+});
+
+$container->set('checkRepo', function () {
+    return new CheckRepo(new Database());
 });
 
 $app = AppFactory::createFromContainer($container);
@@ -29,18 +43,9 @@ $app->add(MethodOverrideMiddleware::class);
 
 $router = $app->getRouteCollector()->getRouteParser();
 
-$database = new Database();
-$urlRepo = new UrlRepo($database);
-$checkRepo = new CheckRepo($database);
-$validator = new Validator();
-
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
-
-/**
- * @var Container $this
- */
 
 $app->get('/', function ($request, $response) {
     $params = [
@@ -50,30 +55,36 @@ $app->get('/', function ($request, $response) {
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('root');
 
-$app->post('/urls', function ($request, $response) use ($router, $urlRepo, $validator) {
+$app->post('/urls', function ($request, $response) use ($router) {
     $url = $request->getParsedBodyParam('url');
     $urlName = htmlspecialchars($url['name']);
+    $validator = new Validator(['name' => $urlName]);
+    $validator->rule('required', 'name')->message('URL не должен быть пустым');
+    $validator->rule('lengthMax', 'name', 255)->message('Некорректный URL');
+    $validator->rule('url', 'name')->message('Некорректный URL');
+    $validator->validate();
+    $errors = $validator->errors();
 
-    $errors = $validator->validate($urlName);
-    if (count($errors) !== 0) {
+    if (!empty($errors)) {
         $params = [
             'url' => ['name' => $urlName],
-            'errors' => $errors
+            'errors' => array_slice($errors['name'], 0, 1)
         ];
         return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
     }
 
-    $normalizedUrlName = $validator->normalize($urlName);
+    $normalizer = new UrlNormalizer();
+    $normalizedUrlName = $normalizer->normalize($urlName);
 
-    $duplicate = $urlRepo->getByName($normalizedUrlName);
+    $duplicate = $this->get('urlRepo')->getByName($normalizedUrlName);
     if ($duplicate === false) {
-        $urlRepo->save($normalizedUrlName);
+        $this->get('urlRepo')->save($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $newUrl = $urlRepo->getByName($normalizedUrlName);
+    $newUrl = $this->get('urlRepo')->getByName($normalizedUrlName);
     if ($newUrl === false) {
         throw new \Exception('Cannot access to Url');
     }
@@ -81,11 +92,11 @@ $app->post('/urls', function ($request, $response) use ($router, $urlRepo, $vali
     return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
 });
 
-$app->get('/urls/{id}', function ($request, $response, array $args) use ($urlRepo, $checkRepo) {
+$app->get('/urls/{id}', function ($request, $response, array $args) {
     $flash = $this->get('flash')->getMessages();
     $urlId = htmlspecialchars($args['id']);
-    $url = $urlRepo->getById($urlId);
-    $urlChecks = $checkRepo->getById($urlId);
+    $url = $this->get('urlRepo')->getById($urlId);
+    $urlChecks = $this->get('checkRepo')->getById($urlId);
     $params = [
         'url' => $url,
         'urlChecks' => $urlChecks,
@@ -94,17 +105,17 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($urlRep
     return $this->get('renderer')->render($response, 'show.phtml', $params);
 })->setName('url');
 
-$app->get('/urls', function ($request, $response) use ($urlRepo) {
-    $urls = $urlRepo->all();
+$app->get('/urls', function ($request, $response) {
+    $urls = $this->get('urlRepo')->all();
     $params = ['urls' => $urls];
     return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
 })->setName('urls');
 
-$app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router, $urlRepo, $checkRepo) {
+$app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router) {
     $urlId = htmlspecialchars($args['url_id']);
 
-    $url = $urlRepo->getById($urlId);
-    if ($url === false) {
+    $url = $this->get('urlRepo')->getById($urlId);
+    if (is_null($url)) {
         throw new \Exception('Cannot access to Url');
     }
 
@@ -127,7 +138,7 @@ $app->post('/urls/{url_id}/checks', function ($request, $response, array $args) 
             $check['description'] = $webPage->getDescription() ?? '';
         }
 
-        $checkRepo->save($check);
+        $this->get('checkRepo')->save($check);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
