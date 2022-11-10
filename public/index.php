@@ -66,12 +66,12 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $validator->rule('lengthMax', 'name', 255)->message('Некорректный URL');
     $validator->rule('url', 'name')->message('Некорректный URL');
     $validator->validate();
-    $errors = $validator->errors();
+    $errors = $validator->errors('name');
 
-    if (!empty($errors)) {
+    if (is_array($errors) && count($errors) > 0) {
         $params = [
             'url' => ['name' => $urlName],
-            'errors' => array_slice($errors['name'], 0, 1)
+            'errors' => array_slice($errors, 0, 1)
         ];
         return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
     }
