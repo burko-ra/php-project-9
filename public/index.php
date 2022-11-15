@@ -52,15 +52,18 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
  * @var Container $this
  */
 $app->get('/', function ($request, $response) use ($router) {
+    $flash = $this->get('flash')->getMessages();
     $params = [
         'url' => ['name' => ''],
         'errors' => [],
+        'flash' => $flash,
         'router' => $router
     ];
     return $this->get('renderer')->render($response, 'index.phtml', $params);
 })->setName('root');
 
 $app->post('/urls', function ($request, $response) use ($router) {
+    $flash = $this->get('flash')->getMessages();
     $url = $request->getParsedBodyParam('url');
     $urlName = $url['name'];
     $validator = new Validator(['name' => $urlName]);
@@ -74,6 +77,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
         $params = [
             'url' => ['name' => $urlName],
             'errors' => array_slice($errorsArray, 0, 1),
+            'flash' => $flash,
             'router' => $router
         ];
         return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
@@ -111,9 +115,11 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($router
 })->setName('url');
 
 $app->get('/urls', function ($request, $response) use ($router) {
+    $flash = $this->get('flash')->getMessages();
     $urls = $this->get('urlRepository')->all();
     $params = [
         'urls' => $urls,
+        'flash' => $flash,
         'router' => $router
     ];
     return $this->get('renderer')->render($response, 'urls/index.phtml', $params);

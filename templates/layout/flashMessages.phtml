@@ -1,0 +1,7 @@
+<?php foreach ($flash as $key => $messages) : ?>
+    <?php foreach ($messages as $message) : ?>
+        <div class="alert alert-<?= $key ?>" role="alert">
+            <?= $message ?>
+        </div>
+    <?php endforeach ?>
+<?php endforeach ?>
