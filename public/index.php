@@ -62,7 +62,7 @@ $app->get('/', function ($request, $response) use ($router) {
 
 $app->post('/urls', function ($request, $response) use ($router) {
     $url = $request->getParsedBodyParam('url');
-    $urlName = htmlspecialchars($url['name']);
+    $urlName = $url['name'];
     $validator = new Validator(['name' => $urlName]);
     $validator->rule('required', 'name')->message('URL не должен быть пустым');
     $validator->rule('lengthMax', 'name', 255)->message('Некорректный URL');
@@ -99,7 +99,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
 $app->get('/urls/{id}', function ($request, $response, array $args) use ($router) {
     $flash = $this->get('flash')->getMessages();
-    $urlId = htmlspecialchars($args['id']);
+    $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
     $urlChecks = $this->get('checkRepository')->getById($urlId);
     $params = [
@@ -121,7 +121,7 @@ $app->get('/urls', function ($request, $response) use ($router) {
 })->setName('urls');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
-    $urlId = htmlspecialchars($args['id']);
+    $urlId = $args['id'];
 
     $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
