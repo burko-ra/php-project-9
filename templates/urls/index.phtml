@@ -21,7 +21,7 @@
                         <?php foreach ($urls as $url) : ?>
                             <tr>
                                 <td><?= $url['url_id'] ?></td>
-                                <td><a href="/urls/<?= $url['url_id'] ?>"><?= $url['url_name'] ?></a></td>
+                                <td><a href="<?= $router->urlFor('url', ['id' => $url['url_id']]) ?>"><?= $url['url_name'] ?></a></td>
                                 <td><?= $url['url_last_check'] ?></td>
                                 <td><?= $url['url_last_status_code'] ?></td>
                             </tr>
