@@ -105,7 +105,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
         'urlChecks' => $urlChecks,
         'flash' => $flash
     ];
-    return $this->get('renderer')->render($response, 'show.phtml', $params);
+    return $this->get('renderer')->render($response, 'urls/show.phtml', $params);
 })->setName('url');
 
 $app->get('/urls', function ($request, $response) {
