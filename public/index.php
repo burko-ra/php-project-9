@@ -29,12 +29,12 @@ $container->set('database', function () {
     return new Database();
 });
 
-$container->set('urlRepo', function () {
-    return new UrlRepo(new Database());
+$container->set('urlRepo', function (\Psr\Container\ContainerInterface $c) {
+    return new UrlRepo($c->get('database'));
 });
 
-$container->set('checkRepo', function () {
-    return new CheckRepo(new Database());
+$container->set('checkRepo', function (\Psr\Container\ContainerInterface $c) {
+    return new CheckRepo($c->get('database'));
 });
 
 $app = AppFactory::createFromContainer($container);
