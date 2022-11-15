@@ -120,8 +120,8 @@ $app->get('/urls', function ($request, $response) use ($router) {
     return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
 })->setName('urls');
 
-$app->post('/urls/{url_id}/checks', function ($request, $response, array $args) use ($router) {
-    $urlId = htmlspecialchars($args['url_id']);
+$app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
+    $urlId = htmlspecialchars($args['id']);
 
     $url = $this->get('urlRepo')->getById($urlId);
     if (is_null($url)) {
