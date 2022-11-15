@@ -1,21 +1,18 @@
 <?php
 
-namespace PageAnalyzer;
+namespace PageAnalyzer\UrlNormalizer;
 
-class UrlNormalizer
+/**
+ * @return string|false
+ */
+function normalize(string $urlName)
 {
-    /**
-     * @return string|false
-     */
-    public function normalize(string $urlName)
-    {
-        $urlParts = parse_url(strtolower($urlName));
-        if ($urlParts === false) {
-            return false;
-        }
-        $scheme = $urlParts['scheme'] ?? '';
-        $host = $urlParts['host'] ?? '';
-        $separator = $scheme === '' ? '' : '://';
-        return $scheme . $separator . $host;
+    $urlParts = parse_url(strtolower($urlName));
+    if ($urlParts === false) {
+        return false;
     }
+    $scheme = $urlParts['scheme'] ?? '';
+    $host = $urlParts['host'] ?? '';
+    $separator = $scheme === '' ? '' : '://';
+    return $scheme . $separator . $host;
 }

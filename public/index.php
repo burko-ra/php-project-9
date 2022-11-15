@@ -10,10 +10,11 @@ use Carbon\Carbon;
 use PageAnalyzer\CheckRepository;
 use PageAnalyzer\Database;
 use PageAnalyzer\Parser;
-use PageAnalyzer\UrlNormalizer;
 use PageAnalyzer\UrlRepository;
 use PageAnalyzer\WebPage;
 use Valitron\Validator;
+
+use function PageAnalyzer\UrlNormalizer\normalize;
 
 $container = new Container();
 
@@ -78,8 +79,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
         return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
     }
 
-    $normalizer = new UrlNormalizer();
-    $normalizedUrlName = $normalizer->normalize($urlName);
+    $normalizedUrlName = normalize($urlName);
 
     $duplicate = $this->get('urlRepository')->getByName($normalizedUrlName);
     if ($duplicate === false) {
