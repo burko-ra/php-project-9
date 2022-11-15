@@ -44,13 +44,13 @@ class UrlRepository
     /**
      * @return array<mixed>|false
      */
-    public function getByName(string $urlName)
+    public function getIdByName(string $urlName)
     {
-        $sql = "SELECT *
+        $sql = "SELECT id
             FROM urls
             WHERE name = :urlName";
         $urls = $this->db->query($sql, [':urlName' => $urlName]);
-        return empty($urls) ? false : $urls[0];
+        return empty($urls) ? false : $urls[0]['id'];
     }
 
     /**

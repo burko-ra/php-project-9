@@ -67,13 +67,13 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $validator->rule('required', 'name')->message('URL не должен быть пустым');
     $validator->rule('lengthMax', 'name', 255)->message('Некорректный URL');
     $validator->rule('url', 'name')->message('Некорректный URL');
-    $validator->validate();
-    $errors = $validator->errors('name');
 
-    if (is_array($errors) && count($errors) > 0) {
+    if (!$validator->validate()) {
+        $errors = $validator->errors('name');
+        $errorsArray = is_bool($errors) ? [] : $errors; //addition for phpstan
         $params = [
             'url' => ['name' => $urlName],
-            'errors' => array_slice($errors, 0, 1),
+            'errors' => array_slice($errorsArray, 0, 1),
             'router' => $router
         ];
         return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
@@ -81,7 +81,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $normalizedUrlName = normalize($urlName);
 
-    $duplicate = $this->get('urlRepository')->getByName($normalizedUrlName);
+    $duplicate = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     if ($duplicate === false) {
         $this->get('urlRepository')->save($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
@@ -89,11 +89,10 @@ $app->post('/urls', function ($request, $response) use ($router) {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $newUrl = $this->get('urlRepository')->getByName($normalizedUrlName);
-    if ($newUrl === false) {
+    $id = (string) $this->get('urlRepository')->getIdByName($normalizedUrlName);
+    if ($id === false) {
         throw new \Exception('Cannot access to Url');
     }
-    $id = (string) $newUrl['id'];
     return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
 })->setName('urlsPost');
 
