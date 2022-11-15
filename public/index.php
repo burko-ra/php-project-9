@@ -5,6 +5,8 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
+use Slim\Views\Twig;
+use Slim\Views\TwigMiddleware;
 
 use Carbon\Carbon;
 use PageAnalyzer\CheckRepository;
@@ -18,8 +20,8 @@ use function PageAnalyzer\UrlNormalizer\normalize;
 
 $container = new Container();
 
-$container->set('renderer', function () {
-    return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
+$container->set('view', function () {
+    return Twig::create(__DIR__ . '/../templates');
 });
 
 $container->set('flash', function () {
@@ -41,6 +43,7 @@ $container->set('checkRepository', function (\Psr\Container\ContainerInterface $
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
+$app->add(TwigMiddleware::createFromContainer($app));
 
 $router = $app->getRouteCollector()->getRouteParser();
 
@@ -59,7 +62,7 @@ $app->get('/', function ($request, $response) use ($router) {
         'flash' => $flash,
         'router' => $router
     ];
-    return $this->get('renderer')->render($response, 'index.phtml', $params);
+    return $this->get('view')->render($response, 'index.phtml', $params);
 })->setName('root');
 
 $app->post('/urls', function ($request, $response) use ($router) {
@@ -80,7 +83,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
             'flash' => $flash,
             'router' => $router
         ];
-        return $this->get('renderer')->render($response->withStatus(422), 'index.phtml', $params);
+        return $this->get('view')->render($response->withStatus(422), 'index.phtml', $params);
     }
 
     $normalizedUrlName = normalize($urlName);
@@ -111,7 +114,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($router
         'flash' => $flash,
         'router' => $router
     ];
-    return $this->get('renderer')->render($response, 'urls/show.phtml', $params);
+    return $this->get('view')->render($response, 'urls/show.phtml', $params);
 })->setName('url');
 
 $app->get('/urls', function ($request, $response) use ($router) {
@@ -122,7 +125,7 @@ $app->get('/urls', function ($request, $response) use ($router) {
         'flash' => $flash,
         'router' => $router
     ];
-    return $this->get('renderer')->render($response, 'urls/index.phtml', $params);
+    return $this->get('view')->render($response, 'urls/index.phtml', $params);
 })->setName('urls');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
