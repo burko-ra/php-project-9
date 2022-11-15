@@ -4,7 +4,7 @@ namespace PageAnalyzer;
 
 use PageAnalyzer\Database;
 
-class CheckRepo
+class CheckRepository
 {
     protected Database $db;
 

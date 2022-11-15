@@ -4,7 +4,7 @@ namespace PageAnalyzer;
 
 use Carbon\Carbon;
 
-class UrlRepo
+class UrlRepository
 {
     protected Database $db;
 

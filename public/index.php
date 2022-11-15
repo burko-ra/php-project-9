@@ -7,11 +7,11 @@ use DI\Container;
 use Slim\Middleware\MethodOverrideMiddleware;
 
 use Carbon\Carbon;
-use PageAnalyzer\CheckRepo;
+use PageAnalyzer\CheckRepository;
 use PageAnalyzer\Database;
 use PageAnalyzer\Parser;
 use PageAnalyzer\UrlNormalizer;
-use PageAnalyzer\UrlRepo;
+use PageAnalyzer\UrlRepository;
 use PageAnalyzer\WebPage;
 use Valitron\Validator;
 
@@ -29,12 +29,12 @@ $container->set('database', function () {
     return new Database();
 });
 
-$container->set('urlRepo', function (\Psr\Container\ContainerInterface $c) {
-    return new UrlRepo($c->get('database'));
+$container->set('urlRepository', function (\Psr\Container\ContainerInterface $c) {
+    return new UrlRepository($c->get('database'));
 });
 
-$container->set('checkRepo', function (\Psr\Container\ContainerInterface $c) {
-    return new CheckRepo($c->get('database'));
+$container->set('checkRepository', function (\Psr\Container\ContainerInterface $c) {
+    return new CheckRepository($c->get('database'));
 });
 
 $app = AppFactory::createFromContainer($container);
@@ -81,15 +81,15 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $normalizer = new UrlNormalizer();
     $normalizedUrlName = $normalizer->normalize($urlName);
 
-    $duplicate = $this->get('urlRepo')->getByName($normalizedUrlName);
+    $duplicate = $this->get('urlRepository')->getByName($normalizedUrlName);
     if ($duplicate === false) {
-        $this->get('urlRepo')->save($normalizedUrlName);
+        $this->get('urlRepository')->save($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $newUrl = $this->get('urlRepo')->getByName($normalizedUrlName);
+    $newUrl = $this->get('urlRepository')->getByName($normalizedUrlName);
     if ($newUrl === false) {
         throw new \Exception('Cannot access to Url');
     }
@@ -100,8 +100,8 @@ $app->post('/urls', function ($request, $response) use ($router) {
 $app->get('/urls/{id}', function ($request, $response, array $args) use ($router) {
     $flash = $this->get('flash')->getMessages();
     $urlId = htmlspecialchars($args['id']);
-    $url = $this->get('urlRepo')->getById($urlId);
-    $urlChecks = $this->get('checkRepo')->getById($urlId);
+    $url = $this->get('urlRepository')->getById($urlId);
+    $urlChecks = $this->get('checkRepository')->getById($urlId);
     $params = [
         'url' => $url,
         'urlChecks' => $urlChecks,
@@ -112,7 +112,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($router
 })->setName('url');
 
 $app->get('/urls', function ($request, $response) use ($router) {
-    $urls = $this->get('urlRepo')->all();
+    $urls = $this->get('urlRepository')->all();
     $params = [
         'urls' => $urls,
         'router' => $router
@@ -123,7 +123,7 @@ $app->get('/urls', function ($request, $response) use ($router) {
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
     $urlId = htmlspecialchars($args['id']);
 
-    $url = $this->get('urlRepo')->getById($urlId);
+    $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
         throw new \Exception('Cannot access to Url');
     }
@@ -147,7 +147,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
             $check['description'] = $webPage->getDescription() ?? '';
         }
 
-        $this->get('checkRepo')->save($check);
+        $this->get('checkRepository')->save($check);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
