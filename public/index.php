@@ -89,11 +89,11 @@ $app->post('/urls', function ($request, $response) use ($router) {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $id = (string) $this->get('urlRepository')->getIdByName($normalizedUrlName);
+    $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     if ($id === false) {
         throw new \Exception('Cannot access to Url');
     }
-    return $response->withRedirect($router->urlFor('url', ['id' => $id]), 302);
+    return $response->withRedirect($router->urlFor('url', ['id' => (string) $id]), 302);
 })->setName('urlsPost');
 
 $app->get('/urls/{id}', function ($request, $response, array $args) use ($router) {
