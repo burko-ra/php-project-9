@@ -70,15 +70,13 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $urlName = $url['name'];
     $validator = new Validator(['name' => $urlName]);
     $validator->rule('required', 'name')->message('URL не должен быть пустым');
-    $validator->rule('lengthMax', 'name', 255)->message('Некорректный URL');
-    $validator->rule('url', 'name')->message('Некорректный URL');
+    $validator->rule('url', 'name');
 
     if (!$validator->validate()) {
         $errors = $validator->errors('name');
-        $errorsArray = is_bool($errors) ? [] : $errors; //addition for phpstan
         $params = [
             'url' => ['name' => $urlName],
-            'errors' => array_slice($errorsArray, 0, 1),
+            'errors' => $errors,
             'flash' => $flash,
         ];
         return $this->get('view')->render($response->withStatus(422), 'index.twig', $params);
