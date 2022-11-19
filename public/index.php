@@ -62,7 +62,7 @@ $app->get('/', function ($request, $response) use ($router) {
         'flash' => $flash,
         'router' => $router
     ];
-    return $this->get('view')->render($response, 'index.phtml', $params);
+    return $this->get('view')->render($response, 'index.twig', $params);
 })->setName('root');
 
 $app->post('/urls', function ($request, $response) use ($router) {
@@ -83,7 +83,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
             'flash' => $flash,
             'router' => $router
         ];
-        return $this->get('view')->render($response->withStatus(422), 'index.phtml', $params);
+        return $this->get('view')->render($response->withStatus(422), 'index.twig', $params);
     }
 
     $normalizedUrlName = normalize($urlName);
@@ -114,7 +114,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($router
         'flash' => $flash,
         'router' => $router
     ];
-    return $this->get('view')->render($response, 'urls/show.phtml', $params);
+    return $this->get('view')->render($response, 'urls/show.twig', $params);
 })->setName('url');
 
 $app->get('/urls', function ($request, $response) use ($router) {
@@ -125,7 +125,7 @@ $app->get('/urls', function ($request, $response) use ($router) {
         'flash' => $flash,
         'router' => $router
     ];
-    return $this->get('view')->render($response, 'urls/index.phtml', $params);
+    return $this->get('view')->render($response, 'urls/index.twig', $params);
 })->setName('urls');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
