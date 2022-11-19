@@ -54,13 +54,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 /**
  * @var Container $this
  */
-$app->get('/', function ($request, $response) use ($router) {
+$app->get('/', function ($request, $response) {
     $flash = $this->get('flash')->getMessages();
     $params = [
         'url' => ['name' => ''],
         'errors' => [],
         'flash' => $flash,
-        'router' => $router
     ];
     return $this->get('view')->render($response, 'index.twig', $params);
 })->setName('root');
@@ -81,7 +80,6 @@ $app->post('/urls', function ($request, $response) use ($router) {
             'url' => ['name' => $urlName],
             'errors' => array_slice($errorsArray, 0, 1),
             'flash' => $flash,
-            'router' => $router
         ];
         return $this->get('view')->render($response->withStatus(422), 'index.twig', $params);
     }
@@ -103,7 +101,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
     return $response->withRedirect($router->urlFor('url', ['id' => (string) $id]), 302);
 })->setName('urlsPost');
 
-$app->get('/urls/{id}', function ($request, $response, array $args) use ($router) {
+$app->get('/urls/{id}', function ($request, $response, array $args) {
     $flash = $this->get('flash')->getMessages();
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
@@ -112,18 +110,16 @@ $app->get('/urls/{id}', function ($request, $response, array $args) use ($router
         'url' => $url,
         'urlChecks' => $urlChecks,
         'flash' => $flash,
-        'router' => $router
     ];
     return $this->get('view')->render($response, 'urls/show.twig', $params);
 })->setName('url');
 
-$app->get('/urls', function ($request, $response) use ($router) {
+$app->get('/urls', function ($request, $response) {
     $flash = $this->get('flash')->getMessages();
     $urls = $this->get('urlRepository')->all();
     $params = [
         'urls' => $urls,
         'flash' => $flash,
-        'router' => $router
     ];
     return $this->get('view')->render($response, 'urls/index.twig', $params);
 })->setName('urls');

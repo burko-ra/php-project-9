@@ -1,6 +1,6 @@
 {% set navLinkIndex = 'active' %}
 
-{% extends 'layout/layout.phtml' %}
+{% extends 'layout/layout.twig' %}
 
 {% block content %}
 
@@ -18,7 +18,7 @@
                 {% for url in urls %}
                     <tr>
                         <td>{{ url.url_id }}</td>
-                        <td><a href="{{ router.urlFor('url', {'id': url.url_id}) }}">{{url.url_name}}</a></td>
+                        <td><a href="{{ url_for('url', {'id': url.url_id}) }}">{{url.url_name}}</a></td>
                         <td>{{ url.url_last_check }}</td>
                         <td>{{ url.url_last_status_code }}</td>
                     </tr>
