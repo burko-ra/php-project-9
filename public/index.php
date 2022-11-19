@@ -70,7 +70,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $urlName = $url['name'];
     $validator = new Validator(['name' => $urlName]);
     $validator->rule('required', 'name')->message('URL не должен быть пустым');
-    $validator->rule('url', 'name');
+    $validator->rule('url', 'name')->message('Некорректный URL');
 
     if (!$validator->validate()) {
         $errors = $validator->errors('name');
