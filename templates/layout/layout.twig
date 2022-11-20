@@ -26,13 +26,21 @@
     </header>
 
     <main class="flex-grow-1">
-        {% for key, messages in flash %}
+        {% for key, messages in flash.getMessages() %}
         {% for message in messages %}
         <div class="alert alert-{{ key }}" role="alert">
             {{ message }}
         </div>
         {% endfor %}
         {% endfor %}
+
+        {# {% for key, messages in flash %}
+        {% for message in messages %}
+        <div class="alert alert-{{ key }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endfor %} #}
 
         {% block content %} {% endblock content %}
     </main>
