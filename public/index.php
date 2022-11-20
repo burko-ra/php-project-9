@@ -4,6 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
 use DI\Container;
+use Slim\Flash\Messages;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
@@ -24,12 +25,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 $container = new Container();
 
-// $container->set('view', function () {
-//     return Twig::create(__DIR__ . '/../templates');
-// });
-
 $container->set('flash', function () {
-    return new \Slim\Flash\Messages();
+    return new Messages();
 });
 
 $container->set('database', function () {
@@ -47,31 +44,26 @@ $container->set('checkRepository', function (\Psr\Container\ContainerInterface $
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
-// $app->add(TwigMiddleware::createFromContainer($app));
 
 $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
+$twig->getEnvironment()->addGlobal('flash', $container->get('flash'));
 $app->add(TwigMiddleware::create($app, $twig));
 
 $router = $app->getRouteCollector()->getRouteParser();
-
 
 /**
  * @var Container $this
  */
 $app->get('/', function ($request, $response) {
-    // $flash = $this->get('flash')->getMessages();
     $params = [
         'url' => ['name' => ''],
         'errors' => [],
-        // 'flash' => $flash,
     ];
-    $view = Twig::fromRequest($request);
-    $view->getEnvironment()->addGlobal('flash', $this->get('flash'));
-    return $view->render($response, 'index.twig', $params);
+    $twig = Twig::fromRequest($request);
+    return $twig->render($response, 'index.twig', $params);
 })->setName('root');
 
 $app->post('/urls', function ($request, $response) use ($router) {
-    // $flash = $this->get('flash')->getMessages();
     $url = $request->getParsedBodyParam('url');
     $urlName = $url['name'];
     $validator = new Validator(['name' => $urlName]);
@@ -83,11 +75,9 @@ $app->post('/urls', function ($request, $response) use ($router) {
         $params = [
             'url' => ['name' => $urlName],
             'errors' => $errors,
-            // 'flash' => $flash,
         ];
-        $view = Twig::fromRequest($request);
-        $view->getEnvironment()->addGlobal('flash', $this->get('flash'));
-        return $view->render($response->withStatus(422), 'index.twig', $params);
+        $twig = Twig::fromRequest($request);
+        return $twig->render($response->withStatus(422), 'index.twig', $params);
     }
 
     $normalizedUrlName = normalize($urlName);
@@ -108,30 +98,24 @@ $app->post('/urls', function ($request, $response) use ($router) {
 })->setName('urlsPost');
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
-    // $flash = $this->get('flash')->getMessages();
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
     $urlChecks = $this->get('checkRepository')->getById($urlId);
     $params = [
         'url' => $url,
         'urlChecks' => $urlChecks,
-        // 'flash' => $flash,
     ];
-    $view = Twig::fromRequest($request);
-    $view->getEnvironment()->addGlobal('flash', $this->get('flash'));
-    return $view->render($response, 'urls/show.twig', $params);
+    $twig = Twig::fromRequest($request);
+    return $twig->render($response, 'urls/show.twig', $params);
 })->setName('url');
 
 $app->get('/urls', function ($request, $response) {
-    // $flash = $this->get('flash')->getMessages();
     $urls = $this->get('urlRepository')->all();
     $params = [
         'urls' => $urls,
-        // 'flash' => $flash,
     ];
-    $view = Twig::fromRequest($request);
-    $view->getEnvironment()->addGlobal('flash', $this->get('flash'));
-    return $view->render($response, 'urls/index.twig', $params);
+    $twig = Twig::fromRequest($request);
+    return $twig->render($response, 'urls/index.twig', $params);
 })->setName('urls');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
