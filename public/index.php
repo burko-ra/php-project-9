@@ -55,12 +55,8 @@ $router = $app->getRouteCollector()->getRouteParser();
  * @var Container $this
  */
 $app->get('/', function ($request, $response) {
-    $params = [
-        'url' => ['name' => ''],
-        'errors' => [],
-    ];
     $twig = Twig::fromRequest($request);
-    return $twig->render($response, 'index.twig', $params);
+    return $twig->render($response, 'index.twig');
 })->setName('root');
 
 $app->post('/urls', function ($request, $response) use ($router) {
