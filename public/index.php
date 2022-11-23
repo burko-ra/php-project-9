@@ -81,7 +81,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $duplicateId = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     if ($duplicateId === false) {
-        $this->get('urlRepository')->save($normalizedUrlName);
+        $this->get('urlRepository')->add($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
         $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     } else {
@@ -140,7 +140,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
             $check['description'] = $webPage->getDescription() ?? '';
         }
 
-        $this->get('urlCheckRepository')->save($check);
+        $this->get('urlCheckRepository')->add($check);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
