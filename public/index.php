@@ -78,18 +78,16 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $normalizedUrlName = normalize($urlName);
 
-    $duplicate = $this->get('urlRepository')->getIdByName($normalizedUrlName);
-    if ($duplicate === false) {
+    $duplicateId = $this->get('urlRepository')->getIdByName($normalizedUrlName);
+    if ($duplicateId === false) {
         $this->get('urlRepository')->save($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
+        $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
+        $id = $duplicateId;
     }
 
-    $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
-    if ($id === false) {
-        throw new \Exception('Cannot access to Url');
-    }
     return $response->withRedirect($router->urlFor('url', ['id' => (string) $id]), 302);
 })->setName('urlsPost');
 
