@@ -23,7 +23,7 @@ class Parser
     /**
      * @param Client|null $client
      */
-    public function getHtml(string $urlName, $client = null): string
+    public function getContent(string $urlName, $client = null): string
     {
         $client = $client ?? $this->client;
         return $this->client

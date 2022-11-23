@@ -133,7 +133,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
         ];
 
         if ($statusCode === 200) {
-            $html = $parser->getHtml($urlName);
+            $html = $parser->getContent($urlName);
             $webPage = new WebPage($html);
             $check['h1'] = $webPage->getFirstTagInnerText('h1') ?? '';
             $check['title'] = $webPage->getFirstTagInnerText('title') ?? '';
