@@ -1,8 +1,9 @@
 <?php
 
-namespace PageAnalyzer;
+namespace PageAnalyzer\Repositories;
 
 use Carbon\Carbon;
+use PageAnalyzer\Database;
 
 class UrlRepository
 {

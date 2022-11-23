@@ -1,10 +1,10 @@
 <?php
 
-namespace PageAnalyzer;
+namespace PageAnalyzer\Repositories;
 
 use PageAnalyzer\Database;
 
-class CheckRepository
+class UrlCheckRepository
 {
     protected Database $db;
 

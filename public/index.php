@@ -10,10 +10,11 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 
 use Carbon\Carbon;
-use PageAnalyzer\CheckRepository;
+
 use PageAnalyzer\Database;
 use PageAnalyzer\Parser;
-use PageAnalyzer\UrlRepository;
+use PageAnalyzer\Repositories\UrlCheckRepository;
+use PageAnalyzer\Repositories\UrlRepository;
 use PageAnalyzer\WebPage;
 use Valitron\Validator;
 
@@ -37,8 +38,8 @@ $container->set('urlRepository', function (\Psr\Container\ContainerInterface $c)
     return new UrlRepository($c->get('database'));
 });
 
-$container->set('checkRepository', function (\Psr\Container\ContainerInterface $c) {
-    return new CheckRepository($c->get('database'));
+$container->set('urlCheckRepository', function (\Psr\Container\ContainerInterface $c) {
+    return new UrlCheckRepository($c->get('database'));
 });
 
 $app = AppFactory::createFromContainer($container);
@@ -94,7 +95,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
 $app->get('/urls/{id}', function ($request, $response, array $args) {
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
-    $urlChecks = $this->get('checkRepository')->getById($urlId);
+    $urlChecks = $this->get('urlCheckRepository')->getById($urlId);
     $params = [
         'url' => $url,
         'urlChecks' => $urlChecks,
@@ -139,7 +140,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
             $check['description'] = $webPage->getDescription() ?? '';
         }
 
-        $this->get('checkRepository')->save($check);
+        $this->get('urlCheckRepository')->save($check);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
