@@ -62,7 +62,7 @@ $app->get('/', function ($request, $response) {
 $app->post('/urls', function ($request, $response) use ($router) {
     $url = $request->getParsedBodyParam('url');
     $urlName = $url['name'];
-    $validator = new Validator(['name' => $urlName]);
+    $validator = new Validator($url);
     $validator->rule('required', 'name')->message('URL не должен быть пустым');
     $validator->rule('url', 'name')->message('Некорректный URL');
 
