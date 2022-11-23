@@ -57,7 +57,7 @@ $router = $app->getRouteCollector()->getRouteParser();
 $app->get('/', function ($request, $response) {
     $twig = Twig::fromRequest($request);
     return $twig->render($response, 'index.twig');
-})->setName('root');
+})->setName('index');
 
 $app->post('/urls', function ($request, $response) use ($router) {
     $url = $request->getParsedBodyParam('url');
@@ -88,8 +88,8 @@ $app->post('/urls', function ($request, $response) use ($router) {
         $id = $duplicateId;
     }
 
-    return $response->withRedirect($router->urlFor('url', ['id' => (string) $id]), 302);
-})->setName('urlsPost');
+    return $response->withRedirect($router->urlFor('urls.show', ['id' => (string) $id]), 302);
+})->setName('urls.store');
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
     $urlId = $args['id'];
@@ -101,7 +101,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     ];
     $twig = Twig::fromRequest($request);
     return $twig->render($response, 'urls/show.twig', $params);
-})->setName('url');
+})->setName('urls.show');
 
 $app->get('/urls', function ($request, $response) {
     $urls = $this->get('urlRepository')->all();
@@ -110,7 +110,7 @@ $app->get('/urls', function ($request, $response) {
     ];
     $twig = Twig::fromRequest($request);
     return $twig->render($response, 'urls/index.twig', $params);
-})->setName('urls');
+})->setName('urls.index');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
     $urlId = $args['id'];
@@ -145,7 +145,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }
 
-    return $response->withRedirect($router->urlFor('url', ['id' => $urlId]), 302);
-})->setName('checksPost');
+    return $response->withRedirect($router->urlFor('urls.show', ['id' => $urlId]), 302);
+})->setName('urls.checks.store');
 
 $app->run();
