@@ -17,8 +17,7 @@ use PageAnalyzer\Repositories\UrlCheckRepository;
 use PageAnalyzer\Repositories\UrlRepository;
 use Valitron\Validator;
 
-use function PageAnalyzer\Support\Helpers\optional;
-use function PageAnalyzer\Support\Helpers\normalizeUrl;
+use function PageAnalyzer\UrlNormalizer\normalizeUrl;
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();

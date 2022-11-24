@@ -7,7 +7,7 @@
         "psr-4": {
             "PageAnalyzer\\": "src/"
         },
-        "files": ["src/Support/Helpers.php"]
+        "files": ["src/UrlNormalizer.php"]
     },
     "authors": [
         {
