@@ -5,6 +5,10 @@ namespace PageAnalyzer\Support\Helpers;
 use DiDom\Exceptions\InvalidSelectorException;
 use PageAnalyzer\Support\Optional;
 
+/**
+ * @param mixed $attribute
+ * @return mixed
+ */
 function optional($attribute)
 {
     if ($attribute !== null) {

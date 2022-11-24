@@ -132,28 +132,27 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
     $urlName = $url['name'];
 
     try {
-    $pageResponse = $this->get('client')->get($urlName);
-    $statusCode = $pageResponse->getStatusCode();
-    $contents = $pageResponse
-        ->getBody()
-        ->getContents();
-    $document = new Document($contents);
+        $pageResponse = $this->get('client')->get($urlName);
+        $statusCode = $pageResponse->getStatusCode();
+        $contents = $pageResponse
+            ->getBody()
+            ->getContents();
+        $document = new Document($contents);
 
-    $check = [
-        'urlId' => $urlId,
-        'statusCode' => $statusCode,
-        'createdAt' => Carbon::now()->toDateTimeString(),
-    ];
+        $check = [
+            'urlId' => $urlId,
+            'statusCode' => $statusCode,
+            'createdAt' => Carbon::now()->toDateTimeString(),
+        ];
 
-    if ($statusCode === 200) {
-        $check['h1'] = optional($document->first('h1'))->text() ?? '';
-        $check['title'] = optional($document->first('title'))->text() ?? '';
-        $check['description'] = optional($document->first('meta[name=description]'))->getAttribute('content') ?? '';
-    }
+        if ($statusCode === 200) {
+            $check['h1'] = optional($document->first('h1'))->text() ?? '';
+            $check['title'] = optional($document->first('title'))->text() ?? '';
+            $check['description'] = optional($document->first('meta[name=description]'))->getAttribute('content') ?? '';
+        }
 
-    $this->get('urlCheckRepository')->add($check);
-    $this->get('flash')->addMessage('success', 'Страница успешно проверена');
-
+        $this->get('urlCheckRepository')->add($check);
+        $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }
