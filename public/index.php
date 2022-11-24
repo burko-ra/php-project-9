@@ -4,6 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
 use DI\Container;
+use GuzzleHttp\Client;
 use Slim\Flash\Messages;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
@@ -11,7 +12,6 @@ use Slim\Views\TwigMiddleware;
 
 use Carbon\Carbon;
 use DiDom\Document;
-use GuzzleHttp\Client;
 use PageAnalyzer\Database;
 use PageAnalyzer\Repositories\UrlCheckRepository;
 use PageAnalyzer\Repositories\UrlRepository;
@@ -49,13 +49,17 @@ $container->set('urlCheckRepository', function (\Psr\Container\ContainerInterfac
     return new UrlCheckRepository($c->get('database'));
 });
 
+$container->set('view', function () use ($container) {
+    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
+    $twig = new Twig($loader, ['cache' => false]);
+    $twig->getEnvironment()->addGlobal('flash', $container->get('flash'));
+    return $twig;
+});
+
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
-
-$twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
-$twig->getEnvironment()->addGlobal('flash', $container->get('flash'));
-$app->add(TwigMiddleware::create($app, $twig));
+$app->add(TwigMiddleware::createFromContainer($app));
 
 $router = $app->getRouteCollector()->getRouteParser();
 
@@ -63,8 +67,7 @@ $router = $app->getRouteCollector()->getRouteParser();
  * @var Container $this
  */
 $app->get('/', function ($request, $response) {
-    $twig = Twig::fromRequest($request);
-    return $twig->render($response, 'index.twig');
+    return $this->get('view')->render($response, 'index.twig');
 })->setName('index');
 
 $app->post('/urls', function ($request, $response) use ($router) {
@@ -80,8 +83,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
             'url' => ['name' => $urlName],
             'errors' => $errors,
         ];
-        $twig = Twig::fromRequest($request);
-        return $twig->render($response->withStatus(422), 'index.twig', $params);
+        return $this->get('view')->render($response->withStatus(422), 'index.twig', $params);
     }
 
     $normalizedUrlName = normalizeUrl($urlName);
@@ -107,8 +109,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
         'url' => $url,
         'urlChecks' => $urlChecks,
     ];
-    $twig = Twig::fromRequest($request);
-    return $twig->render($response, 'urls/show.twig', $params);
+    return $this->get('view')->render($response, 'urls/show.twig', $params);
 })->setName('urls.show');
 
 $app->get('/urls', function ($request, $response) {
@@ -116,8 +117,7 @@ $app->get('/urls', function ($request, $response) {
     $params = [
         'urls' => $urls,
     ];
-    $twig = Twig::fromRequest($request);
-    return $twig->render($response, 'urls/index.twig', $params);
+    return $this->get('view')->render($response, 'urls/index.twig', $params);
 })->setName('urls.index');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
