@@ -9,6 +9,7 @@ use Slim\Flash\Messages;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use Twig\Loader\FilesystemLoader;
 
 use Carbon\Carbon;
 use DiDom\Document;
@@ -50,7 +51,7 @@ $container->set('urlCheckRepository', function (\Psr\Container\ContainerInterfac
 });
 
 $container->set('view', function () use ($container) {
-    $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
+    $loader = new FilesystemLoader(__DIR__ . '/../templates');
     $twig = new Twig($loader, ['cache' => false]);
     $twig->getEnvironment()->addGlobal('flash', $container->get('flash'));
     return $twig;
