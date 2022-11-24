@@ -136,7 +136,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
         $contents = $pageResponse
             ->getBody()
             ->getContents();
-        
+
         $check = [
             'urlId' => $urlId,
             'statusCode' => $statusCode,
@@ -148,7 +148,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
             $check['h1'] = optional($document->first('h1'))->text() ?? '';
             $check['title'] = optional($document->first('title'))->text() ?? '';
             $check['description'] = optional($document->first('meta[name=description]'))->getAttribute('content') ?? '';
-        }        
+        }
 
         $this->get('urlCheckRepository')->add($check);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
