@@ -10,15 +10,15 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 
 use Carbon\Carbon;
-
+use DiDom\Document;
+use GuzzleHttp\Client;
 use PageAnalyzer\Database;
-use PageAnalyzer\Parser;
 use PageAnalyzer\Repositories\UrlCheckRepository;
 use PageAnalyzer\Repositories\UrlRepository;
-use PageAnalyzer\WebPage;
 use Valitron\Validator;
 
-use function PageAnalyzer\UrlNormalizer\normalize;
+use function PageAnalyzer\Support\Helpers\optional;
+use function PageAnalyzer\Support\Helpers\normalizeUrl;
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -32,6 +32,14 @@ $container->set('flash', function () {
 
 $container->set('database', function () {
     return new Database();
+});
+
+$container->set('client', function () {
+    return new Client([
+        'timeout'  => 5.0,
+        'allow_redirects' => false,
+        'http_errors' => false
+    ]);
 });
 
 $container->set('urlRepository', function (\Psr\Container\ContainerInterface $c) {
@@ -77,7 +85,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
         return $twig->render($response->withStatus(422), 'index.twig', $params);
     }
 
-    $normalizedUrlName = normalize($urlName);
+    $normalizedUrlName = normalizeUrl($urlName);
 
     $duplicateId = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     if ($duplicateId === false) {
@@ -122,26 +130,30 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
     }
 
     $urlName = $url['name'];
-    $parser = new Parser();
+
     try {
-        $statusCode = $parser->getStatusCode($urlName);
+    $pageResponse = $this->get('client')->get($urlName);
+    $statusCode = $pageResponse->getStatusCode();
+    $contents = $pageResponse
+        ->getBody()
+        ->getContents();
+    $document = new Document($contents);
 
-        $check = [
-            'urlId' => $urlId,
-            'statusCode' => $statusCode,
-            'createdAt' => Carbon::now()->toDateTimeString(),
-        ];
+    $check = [
+        'urlId' => $urlId,
+        'statusCode' => $statusCode,
+        'createdAt' => Carbon::now()->toDateTimeString(),
+    ];
 
-        if ($statusCode === 200) {
-            $html = $parser->getContent($urlName);
-            $webPage = new WebPage($html);
-            $check['h1'] = $webPage->getFirstTagInnerText('h1') ?? '';
-            $check['title'] = $webPage->getFirstTagInnerText('title') ?? '';
-            $check['description'] = $webPage->getDescription() ?? '';
-        }
+    if ($statusCode === 200) {
+        $check['h1'] = optional($document->first('h1'))->text() ?? '';
+        $check['title'] = optional($document->first('title'))->text() ?? '';
+        $check['description'] = optional($document->first('meta[name=description]'))->getAttribute('content') ?? '';
+    }
 
-        $this->get('urlCheckRepository')->add($check);
-        $this->get('flash')->addMessage('success', 'Страница успешно проверена');
+    $this->get('urlCheckRepository')->add($check);
+    $this->get('flash')->addMessage('success', 'Страница успешно проверена');
+
     } catch (\Exception $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }

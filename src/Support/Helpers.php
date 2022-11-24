@@ -1,11 +1,22 @@
 <?php
 
-namespace PageAnalyzer\UrlNormalizer;
+namespace PageAnalyzer\Support\Helpers;
+
+use DiDom\Exceptions\InvalidSelectorException;
+use PageAnalyzer\Support\Optional;
+
+function optional($attribute)
+{
+    if ($attribute !== null) {
+        return $attribute;
+    }
+    return new Optional();
+}
 
 /**
  * @return string|false
  */
-function normalize(string $urlName)
+function normalizeUrl(string $urlName)
 {
     $urlParts = parse_url(strtolower($urlName));
     if ($urlParts === false) {
