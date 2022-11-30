@@ -51,10 +51,10 @@ $container->set('urlCheckRepository', function (\Psr\Container\ContainerInterfac
     return new UrlCheckRepository($c->get('database'));
 });
 
-$container->set('view', function () use ($container) {
+$container->set('view', function (\Psr\Container\ContainerInterface $c) {
     $loader = new FilesystemLoader(__DIR__ . '/../templates');
     $twig = new Twig($loader, ['cache' => false]);
-    $twig->getEnvironment()->addGlobal('flash', $container->get('flash'));
+    $twig->getEnvironment()->addGlobal('flash', $c->get('flash'));
     $twig->addExtension(new HtmlExtension());
     return $twig;
 });
