@@ -39,9 +39,9 @@
         <tr>
             <td>{{ urlCheck.id }}</td>
             <td>{{ urlCheck.status_code }}</td>
-            <td class="text-break">{{ urlCheck.h1 }}</td>
-            <td class="text-break">{{ urlCheck.title }}</td>
-            <td class="text-break">{{ urlCheck.description }}</td>
+            <td class="text-break">{{ urlCheck.h1[:200] }}</td>
+            <td class="text-break">{{ urlCheck.title[:200] }}</td>
+            <td class="text-break">{{ urlCheck.description[:200] }}</td>
             <td>{{ urlCheck.created_at }}</td>
         </tr>
         {% endfor %}
