@@ -9,14 +9,12 @@
         <form action="{{ url_for('urls.store') }}" method="post" class="row" required="">
             <div class="col-8">
                 {% set errors = errors ?? [] %}
-                {% if errors is empty %}
-                <input type="text" name="url[name]" value="" class="form-control form-control-lg" placeholder="https://www.example.com">
-                {% else %}
-                <input type="text" name="url[name]" value="{{ url.name|default('') }}" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com">
+                <input type="text" name="url[name]" value="{{ url.name|default('') }}" class="{{ html_classes('form-control', 'form-control-lg', {
+                    'is-invalid': errors
+                }) }}" placeholder="https://www.example.com">
                 {% for message in errors %}
                 <div class="invalid-feedback">{{ message }}</div>
                 {% endfor %}
-                {% endif %}
             </div>
             <div class="col-2">
                 <input type="submit" class="btn btn-primary btn-lg px-5 mx-3 text-uppercase" value="Проверить">
