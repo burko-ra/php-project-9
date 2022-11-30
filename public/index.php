@@ -77,20 +77,19 @@ $app->get('/', function ($request, $response) {
 
 $app->post('/urls', function ($request, $response) use ($router) {
     $url = $request->getParsedBodyParam('url');
-    $urlName = $url['name'];
     $validator = new Validator($url);
     $validator->rule('required', 'name')->message('URL не должен быть пустым');
     $validator->rule('url', 'name')->message('Некорректный URL');
 
     if (!$validator->validate()) {
         $params = [
-            'url' => ['name' => $urlName],
+            'url' => $url,
             'errors' => $validator->errors('name'),
         ];
         return $this->get('view')->render($response->withStatus(422), 'index.twig', $params);
     }
 
-    $normalizedUrlName = normalizeUrl($urlName);
+    $normalizedUrlName = normalizeUrl($url['name']);
 
     $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     if ($id === false) {
