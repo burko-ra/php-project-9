@@ -120,10 +120,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 
 $app->get('/urls', function ($request, $response) {
     $urls = $this->get('urlRepository')->all();
-    $params = [
-        'urls' => $urls,
-    ];
-    return $this->get('view')->render($response, 'urls/index.twig', $params);
+    return $this->get('view')->render($response, 'urls/index.twig', ['urls' => $urls]);
 })->setName('urls.index');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
