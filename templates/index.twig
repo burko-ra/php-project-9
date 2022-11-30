@@ -2,28 +2,26 @@
 
 {% block content %}
 
-<div class="container-lg mt-3">
-    <div class="row">
-        <div class="col-12 col-md-10 col-lg-8 mx-auto border rounded-3 bg-light p-5">
-            <h1 class="display-3">Анализатор страниц</h1>
-            <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
-            <form action="{{ url_for('urls.store') }}" method="post" class="row" required="">
-                <div class="col-8">
-                    {% set errors = errors ?? [] %}
-                    {% if errors is empty %}
-                    <input type="text" name="url[name]" value="" class="form-control form-control-lg" placeholder="https://www.example.com">
-                    {% else %}
-                    <input type="text" name="url[name]" value="{{ url.name|default('') }}" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com">
-                    {% for message in errors %}
-                    <div class="invalid-feedback">{{ message }}</div>
-                    {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="col-2">
-                    <input type="submit" class="btn btn-primary btn-lg px-5 mx-3 text-uppercase" value="Проверить">
-                </div>
-            </form>
-        </div>
+<div class="row">
+    <div class="col-12 col-md-10 col-lg-8 mx-auto border rounded-3 bg-light p-5">
+        <h1 class="display-3">Анализатор страниц</h1>
+        <p class="lead">Бесплатно проверяйте сайты на SEO пригодность</p>
+        <form action="{{ url_for('urls.store') }}" method="post" class="row" required="">
+            <div class="col-8">
+                {% set errors = errors ?? [] %}
+                {% if errors is empty %}
+                <input type="text" name="url[name]" value="" class="form-control form-control-lg" placeholder="https://www.example.com">
+                {% else %}
+                <input type="text" name="url[name]" value="{{ url.name|default('') }}" class="form-control form-control-lg is-invalid" placeholder="https://www.example.com">
+                {% for message in errors %}
+                <div class="invalid-feedback">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-2">
+                <input type="submit" class="btn btn-primary btn-lg px-5 mx-3 text-uppercase" value="Проверить">
+            </div>
+        </form>
     </div>
 </div>
 
