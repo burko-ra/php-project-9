@@ -105,6 +105,10 @@ $app->post('/urls', function ($request, $response) use ($router) {
 $app->get('/urls/{id}', function ($request, $response, array $args) {
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
+    if (is_null($url)) {
+        throw new \Slim\Exception\HttpNotFoundException($request);
+    }
+
     $urlChecks = $this->get('urlCheckRepository')->getById($urlId);
     $params = [
         'url' => $url,
@@ -123,14 +127,12 @@ $app->get('/urls', function ($request, $response) {
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
     $urlId = $args['id'];
-
     $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
-        throw new \Exception('Cannot access to Url');
+        throw new \Slim\Exception\HttpNotFoundException($request);
     }
 
     $urlName = $url['name'];
-
     try {
         $pageResponse = $this->get('client')->get($urlName);
         $statusCode = $pageResponse->getStatusCode();

@@ -35,6 +35,9 @@ class UrlRepository
      */
     public function getById(string $urlId)
     {
+        if (!is_numeric($urlId)) {
+            return null;
+        }
         $sql = "SELECT *
             FROM urls
             WHERE id = :urlId";
