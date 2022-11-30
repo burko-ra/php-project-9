@@ -19,6 +19,8 @@ use PageAnalyzer\Repositories\UrlCheckRepository;
 use PageAnalyzer\Repositories\UrlRepository;
 use Valitron\Validator;
 
+use GuzzleHttp\Exception\GuzzleException;
+
 use function PageAnalyzer\UrlNormalizer\normalizeUrl;
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -155,7 +157,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
 
         $this->get('urlCheckRepository')->add($check);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
-    } catch (\Exception $e) {
+    } catch (GuzzleException $e) {
         $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }
 
