@@ -90,14 +90,13 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $normalizedUrlName = normalizeUrl($urlName);
 
-    $duplicateId = $this->get('urlRepository')->getIdByName($normalizedUrlName);
-    if ($duplicateId === false) {
+    $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
+    if ($id === false) {
         $this->get('urlRepository')->add($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
         $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
-        $id = $duplicateId;
     }
 
     return $response->withRedirect($router->urlFor('urls.show', ['id' => (string) $id]), 302);
