@@ -81,10 +81,9 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $validator->rule('url', 'name')->message('Некорректный URL');
 
     if (!$validator->validate()) {
-        $errors = $validator->errors('name');
         $params = [
             'url' => ['name' => $urlName],
-            'errors' => $errors,
+            'errors' => $validator->errors('name'),
         ];
         return $this->get('view')->render($response->withStatus(422), 'index.twig', $params);
     }
