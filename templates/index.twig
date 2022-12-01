@@ -9,11 +9,11 @@
         <form action="{{ url_for('urls.store') }}" method="post" class="row" required="">
             <div class="col-8">
                 {% set errors = errors ?? [] %}
-                <input type="text" name="url[name]" value="{{ url.name|default('') }}" class="{{ html_classes('form-control', 'form-control-lg', {
+                <input type="text" name="url[name]" value="{{ request.url.name|default('') }}" class="{{ html_classes('form-control', 'form-control-lg', {
                     'is-invalid': errors
                 }) }}" placeholder="https://www.example.com">
-                {% for message in errors %}
-                <div class="invalid-feedback">{{ message }}</div>
+                {% for messages in errors %}
+                    <p class="invalid-feedback">{{ messages|join("\n")|nl2br }}</p>
                 {% endfor %}
             </div>
             <div class="col-2">
