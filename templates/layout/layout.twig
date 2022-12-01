@@ -28,7 +28,7 @@
     <main class="flex-grow-1">
         {% for key, messages in flash.getMessages() %}
             <div class="alert alert-{{ key }}" role="alert">
-                {{ messages|join(". ") }}
+                {{ messages|join("\n")|nl2br }}
             </div>
         {% endfor %}
 
