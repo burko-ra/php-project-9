@@ -5,8 +5,13 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use DI\Container;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Flash\Messages;
 use Slim\Middleware\MethodOverrideMiddleware;
+use Slim\Psr7\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extra\Html\HtmlExtension;
@@ -18,8 +23,6 @@ use PageAnalyzer\Database;
 use PageAnalyzer\Repositories\UrlCheckRepository;
 use PageAnalyzer\Repositories\UrlRepository;
 use Valitron\Validator;
-
-use GuzzleHttp\Exception\GuzzleException;
 
 use function PageAnalyzer\UrlNormalizer\normalizeUrl;
 
@@ -62,6 +65,14 @@ $container->set('view', function (\Psr\Container\ContainerInterface $c) {
 });
 
 $app = AppFactory::createFromContainer($container);
+$app->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($container) {
+    try {
+        return $handler->handle($request);
+    } catch (HttpNotFoundException $httpException) {
+        $response = (new Response())->withStatus(404);
+        return $container->get('view')->render($response, 'errors/404.twig');
+    }
+});
 $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
 $app->add(TwigMiddleware::createFromContainer($app));

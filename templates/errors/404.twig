@@ -1,0 +1,16 @@
+{% extends 'layout/layout.twig' %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-center">
+    <div class="text-center">
+        <h1 class="display-1 fw-bold">404</h1>
+        <p class="fs-3">Страница не найдена!</p>
+        <p class="lead">
+            Для продолжения нажмите на кнопку
+            </p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">На главную</a>
+    </div>
+</div>
+
+{% endblock content %}
