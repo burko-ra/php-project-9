@@ -119,15 +119,13 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     $validator = new Validator($args);
     $validator->rule('regex', 'id', '/^[0-9]+$/');
     if (!$validator->validate()) {
-        throw new \Exception($args['id']);
-        //throw new HttpNotFoundException($request);
+        throw new HttpNotFoundException($request);
     }
 
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getBy($urlId);
     if (is_null($url)) {
-        throw new \Exception($args['id']);
-        //throw new HttpNotFoundException($request);
+        throw new HttpNotFoundException($request);
     }
 
     $urlChecks = $this->get('urlCheckRepository')->getBy($urlId);
