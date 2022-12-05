@@ -118,13 +118,13 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     $validator = new Validator($args);
     $validator->rule('regex', 'id', '/^[0-9]+$/');
     if (!$validator->validate()) {
-        throw new \Slim\Exception\HttpNotFoundException($request);
+        throw new HttpNotFoundException($request);
     }
 
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
-        throw new \Slim\Exception\HttpNotFoundException($request);
+        throw new HttpNotFoundException($request);
     }
 
     $urlChecks = $this->get('urlCheckRepository')->getById($urlId);
@@ -144,13 +144,13 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
     $validator = new Validator($args);
     $validator->rule('regex', 'id', '/^[0-9]+$/');
     if (!$validator->validate()) {
-        throw new \Slim\Exception\HttpNotFoundException($request);
+        throw new HttpNotFoundException($request);
     }
 
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
-        throw new \Slim\Exception\HttpNotFoundException($request);
+        throw new HttpNotFoundException($request);
     }
 
     $urlName = $url['name'];
