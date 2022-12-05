@@ -165,7 +165,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
         $check = [
             'urlId' => $urlId,
             'statusCode' => $statusCode,
-            'createdAt' => Carbon::now()->toDateTimeString(),
+            'createdAt' => Carbon::now()
         ];
 
         if ($statusCode >= 200 && $statusCode < 300) {

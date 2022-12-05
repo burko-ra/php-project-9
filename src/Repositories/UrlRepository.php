@@ -47,7 +47,7 @@ class UrlRepository
      */
     public function add(string $urlName)
     {
-        $createdAt = Carbon::now()->toDateTimeString();
+        $createdAt = Carbon::now();
         $sql = "INSERT INTO urls (name, created_at) VALUES
             (:name, :createdAt)";
         $params = [
