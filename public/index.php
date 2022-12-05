@@ -115,6 +115,12 @@ $app->post('/urls', function ($request, $response) use ($router) {
 })->setName('urls.store');
 
 $app->get('/urls/{id}', function ($request, $response, array $args) {
+    $validator = new Validator($args);
+    $validator->rule('regex', 'id', '/^[0-9]+$/');
+    if (!$validator->validate()) {
+        throw new \Slim\Exception\HttpNotFoundException($request);
+    }
+
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
@@ -135,6 +141,12 @@ $app->get('/urls', function ($request, $response) {
 })->setName('urls.index');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
+    $validator = new Validator($args);
+    $validator->rule('regex', 'id', '/^[0-9]+$/');
+    if (!$validator->validate()) {
+        throw new \Slim\Exception\HttpNotFoundException($request);
+    }
+
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
