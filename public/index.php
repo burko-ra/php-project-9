@@ -102,15 +102,16 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $normalizedUrlName = normalizeUrl($requestBodyParams['url']['name']);
 
-    $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
-    if ($id === false) {
+    $url = $this->get('urlRepository')->getBy($normalizedUrlName, 'name');
+    if ($url === null) {
         $this->get('urlRepository')->add($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
-        $id = $this->get('urlRepository')->getIdByName($normalizedUrlName);
+        $url = $this->get('urlRepository')->getBy($normalizedUrlName, 'name');
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
+    $id = $url['id'];
     return $response->withRedirect($router->urlFor('urls.show', ['id' => (string) $id]), 302);
 })->setName('urls.store');
 
@@ -118,16 +119,18 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
     $validator = new Validator($args);
     $validator->rule('regex', 'id', '/^[0-9]+$/');
     if (!$validator->validate()) {
-        throw new HttpNotFoundException($request);
+        throw new \Exception($args['id']);
+        //throw new HttpNotFoundException($request);
     }
 
     $urlId = $args['id'];
-    $url = $this->get('urlRepository')->getById($urlId);
+    $url = $this->get('urlRepository')->getBy($urlId);
     if (is_null($url)) {
-        throw new HttpNotFoundException($request);
+        throw new \Exception($args['id']);
+        //throw new HttpNotFoundException($request);
     }
 
-    $urlChecks = $this->get('urlCheckRepository')->getById($urlId);
+    $urlChecks = $this->get('urlCheckRepository')->getBy($urlId);
     $params = [
         'url' => $url,
         'urlChecks' => $urlChecks,
@@ -148,7 +151,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
     }
 
     $urlId = $args['id'];
-    $url = $this->get('urlRepository')->getById($urlId);
+    $url = $this->get('urlRepository')->getBy($urlId);
     if (is_null($url)) {
         throw new HttpNotFoundException($request);
     }

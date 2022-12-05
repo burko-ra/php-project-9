@@ -33,28 +33,13 @@ class UrlRepository
     /**
      * @return array<mixed>|null
      */
-    public function getById(string $id)
+    public function getBy(string $urlName, string $column = 'id')
     {
-        if (!is_numeric($id)) {
-            return null;
-        }
         $sql = "SELECT *
             FROM urls
-            WHERE id = :id";
-        $urls = $this->db->query($sql, [':id' => $id]);
+            WHERE $column = :urlName";
+        $urls = $this->db->query($sql, ['urlName' => $urlName]);
         return empty($urls) ? null : $urls[0];
-    }
-
-    /**
-     * @return array<mixed>|false
-     */
-    public function getIdByName(string $urlName)
-    {
-        $sql = "SELECT id
-            FROM urls
-            WHERE name = :urlName";
-        $urls = $this->db->query($sql, [':urlName' => $urlName]);
-        return empty($urls) ? false : $urls[0]['id'];
     }
 
     /**

@@ -16,11 +16,11 @@ class UrlCheckRepository
     /**
      * @return array<mixed>
      */
-    public function getById(string $urlId)
+    public function getBy(string $urlId, string $column = 'url_id')
     {
         $sql = "SELECT * 
             FROM url_checks
-            WHERE url_id = :urlId
+            WHERE $column = :urlId
             ORDER BY id DESC";
         return $this->db->query($sql, [':urlId' => $urlId]);
     }
