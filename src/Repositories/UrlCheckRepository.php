@@ -16,7 +16,7 @@ class UrlCheckRepository
     /**
      * @return array<mixed>
      */
-    public function getBy(string $urlId, string $column = 'url_id')
+    public function getByUrlId(string $urlId, string $column = 'url_id')
     {
         $sql = "SELECT * 
             FROM url_checks
