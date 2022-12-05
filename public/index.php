@@ -138,12 +138,18 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 
 $app->get('/urls', function ($request, $response) {
     $urls = $this->get('urlRepository')->all();
-    $checks = $this->get('urlCheckRepository')->distinctOnUrlId();
 
-    $merged = array_map(function ($url) use ($checks) {
+    $checks = $this->get('urlCheckRepository')->distinctOnUrlId();
+    $groupedChecks = array_reduce($checks, function ($acc, $item) {
+        $urlId = $item['url_id'];
+        $acc[$urlId] = $item;
+        return $acc;
+    }, []);
+
+    $merged = array_map(function ($url) use ($groupedChecks) {
         $urlId = $url['url_id'];
-        $url['url_last_check'] = $checks[$urlId]['url_last_check'] ?? '';
-        $url['url_last_status_code'] = $checks[$urlId]['url_last_status_code'] ?? '';
+        $url['url_last_check'] = $groupedChecks[$urlId]['url_last_check'] ?? '';
+        $url['url_last_status_code'] = $groupedChecks[$urlId]['url_last_status_code'] ?? '';
         return $url;
     }, $urls);
 
