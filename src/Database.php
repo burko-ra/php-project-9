@@ -37,7 +37,7 @@ class Database
             throw new \Exception('Cannot execute the query');
         }
 
-        $matches = $sth->fetchAll(0);
+        $matches = $sth->fetchAll(\PDO::FETCH_ASSOC);
         if ($matches === false) {
             throw new \Exception('Expect array, boolean given');
         }
