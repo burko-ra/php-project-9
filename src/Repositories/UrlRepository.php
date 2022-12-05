@@ -33,15 +33,15 @@ class UrlRepository
     /**
      * @return array<mixed>|null
      */
-    public function getById(string $urlId)
+    public function getById(string $id)
     {
-        if (!is_numeric($urlId)) {
+        if (!is_numeric($id)) {
             return null;
         }
         $sql = "SELECT *
             FROM urls
-            WHERE id = :urlId";
-        $urls = $this->db->query($sql, [':urlId' => $urlId]);
+            WHERE id = :id";
+        $urls = $this->db->query($sql, [':id' => $id]);
         return empty($urls) ? null : $urls[0];
     }
 
