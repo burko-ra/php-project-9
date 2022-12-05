@@ -167,7 +167,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
             'createdAt' => Carbon::now()->toDateTimeString(),
         ];
 
-        if ($statusCode === 200) {
+        if ($statusCode >= 200 && $statusCode < 300) {
             $document = new Document($contents);
             $check['h1'] = optional($document->first('h1'))->text() ?? '';
             $check['title'] = optional($document->first('title'))->text() ?? '';
