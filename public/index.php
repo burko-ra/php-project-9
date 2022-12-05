@@ -138,7 +138,16 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 
 $app->get('/urls', function ($request, $response) {
     $urls = $this->get('urlRepository')->all();
-    return $this->get('view')->render($response, 'urls/index.twig', ['urls' => $urls]);
+    $checks = $this->get('urlCheckRepository')->distinctOnUrlId();
+
+    $merged = array_map(function ($url) use ($checks) {
+        $urlId = $url['url_id'];
+        $url['url_last_check'] = $checks[$urlId]['url_last_check'] ?? '';
+        $url['url_last_status_code'] = $checks[$urlId]['url_last_status_code'] ?? '';
+        return $url;
+    }, $urls);
+
+    return $this->get('view')->render($response, 'urls/index.twig', ['urls' => $merged]);
 })->setName('urls.index');
 
 $app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {

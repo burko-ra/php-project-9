@@ -43,4 +43,23 @@ class UrlCheckRepository
         ];
         $this->db->query($sql, $params);
     }
+
+    /**
+     * @return array<mixed>
+     */
+    public function distinctOnUrlId()
+    {
+        $sql = "SELECT DISTINCT ON (url_id)
+            url_id,
+            created_at as url_last_check,
+            status_code as url_last_status_code
+        FROM url_checks
+        ORDER BY url_id DESC, url_last_check DESC";
+        $checks = $this->db->query($sql);
+        return array_reduce($checks, function ($acc, $item) {
+            $urlId = $item['url_id'];
+            $acc[$urlId] = $item;
+            return $acc;
+        }, []);
+    }
 }

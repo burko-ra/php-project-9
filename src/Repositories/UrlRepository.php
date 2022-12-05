@@ -19,14 +19,11 @@ class UrlRepository
      */
     public function all()
     {
-        $sql = "SELECT DISTINCT ON (urls.id) urls.id as url_id,
-        urls.name as url_name,
-        url_checks.created_at as url_last_check,
-        url_checks.status_code as url_last_status_code
+        $sql = "SELECT
+            id as url_id,
+            name as url_name
         FROM urls
-        LEFT JOIN url_checks
-        ON urls.id = url_checks.url_id
-        ORDER BY urls.id DESC, url_last_check DESC";
+        ORDER BY url_id DESC";
         return $this->db->query($sql);
     }
 
