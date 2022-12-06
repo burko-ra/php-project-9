@@ -139,7 +139,7 @@ $app->get('/urls/{id}', function ($request, $response, array $args) {
 $app->get('/urls', function ($request, $response) {
     $urls = $this->get('urlRepository')->all();
 
-    $checks = $this->get('urlCheckRepository')->distinctOnUrlId();
+    $checks = $this->get('urlCheckRepository')->getDistinct();
     $groupedChecks = array_reduce($checks, function ($acc, $item) {
         $urlId = $item['url_id'];
         $acc[$urlId] = $item;

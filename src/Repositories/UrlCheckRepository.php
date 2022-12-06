@@ -47,7 +47,7 @@ class UrlCheckRepository
     /**
      * @return array<mixed>
      */
-    public function distinctOnUrlId()
+    public function getDistinct()
     {
         $sql = "SELECT DISTINCT ON (url_id)
             url_id,
