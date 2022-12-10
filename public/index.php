@@ -101,12 +101,13 @@ $app->post('/urls', function ($request, $response) use ($router) {
     }
 
     $normalizedUrlName = normalizeUrl($requestBodyParams['url']['name']);
+    $urlRepository = $this->get('urlRepository');
 
-    $url = $this->get('urlRepository')->getBy($normalizedUrlName, 'name');
+    $url = $urlRepository->getBy($normalizedUrlName, 'name');
     if ($url === null) {
-        $this->get('urlRepository')->add($normalizedUrlName);
+        $urlRepository->add($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
-        $url = $this->get('urlRepository')->getBy($normalizedUrlName, 'name');
+        $url = $urlRepository->getBy($normalizedUrlName, 'name');
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
