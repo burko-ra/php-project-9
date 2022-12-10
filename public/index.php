@@ -116,13 +116,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
     return $response->withRedirect($router->urlFor('urls.show', ['id' => (string) $id]), 302);
 })->setName('urls.store');
 
-$app->get('/urls/{id}', function ($request, $response, array $args) {
-    $validator = new Validator($args);
-    $validator->rule('regex', 'id', '/^[0-9]+$/');
-    if (!$validator->validate()) {
-        throw new HttpNotFoundException($request);
-    }
-
+$app->get('/urls/{id:[0-9]+}', function ($request, $response, array $args) {
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getBy($urlId);
     if (is_null($url)) {
@@ -157,13 +151,7 @@ $app->get('/urls', function ($request, $response) {
     return $this->get('view')->render($response, 'urls/index.twig', ['urls' => $merged]);
 })->setName('urls.index');
 
-$app->post('/urls/{id}/checks', function ($request, $response, array $args) use ($router) {
-    $validator = new Validator($args);
-    $validator->rule('regex', 'id', '/^[0-9]+$/');
-    if (!$validator->validate()) {
-        throw new HttpNotFoundException($request);
-    }
-
+$app->post('/urls/{id:[0-9]+}/checks', function ($request, $response, array $args) use ($router) {
     $urlId = $args['id'];
     $url = $this->get('urlRepository')->getBy($urlId);
     if (is_null($url)) {
