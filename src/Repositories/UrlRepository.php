@@ -30,33 +30,33 @@ class UrlRepository
     /**
      * @return array<mixed>
      */
-    public function getBy(string $urlName, string $column = 'id')
+    public function getBy(string $value, string $column)
     {
         $sql = "SELECT *
             FROM urls
-            WHERE $column = :urlName";
-        $urls = $this->db->query($sql, ['urlName' => $urlName]);
+            WHERE $column = :value";
+        $urls = $this->db->query($sql, [':value' => $value]);
         return $urls;
     }
 
     /**
      * @return array<mixed>|null
      */
-    public function getById(string $urlName)
+    public function getById(string $id)
     {
-        $urls = $this->getBy($urlName, 'id');
+        $urls = $this->getBy($id, 'id');
         return empty($urls) ? null : $urls[0];
     }
 
     /**
      * @return void
      */
-    public function add(string $urlName)
+    public function add(string $name)
     {
         $sql = "INSERT INTO urls (name, created_at) VALUES
             (:name, :createdAt)";
         $params = [
-            ':name' => $urlName,
+            ':name' => $name,
             ':createdAt' => Carbon::now()
         ];
         $this->db->query($sql, $params);
