@@ -7,7 +7,7 @@ namespace PageAnalyzer\UrlNormalizer;
  */
 function normalizeUrl(string $urlName)
 {
-    $urlParts = parse_url(strtolower($urlName));
+    $urlParts = parse_url(mb_strtolower($urlName));
     if ($urlParts === false) {
         return false;
     }
