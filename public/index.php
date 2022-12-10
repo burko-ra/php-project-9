@@ -40,7 +40,7 @@ $container->set('database', function () {
     return new Database();
 });
 
-$container->set('urlConnection', function () {
+$container->set('httpClient', function () {
     return new Client([
         'timeout'  => 5.0,
         'allow_redirects' => false,
@@ -171,7 +171,7 @@ $app->post('/urls/{id}/checks', function ($request, $response, array $args) use 
 
     $urlName = $url['name'];
     try {
-        $pageResponse = $this->get('urlConnection')->get($urlName);
+        $pageResponse = $this->get('httpClient')->get($urlName);
         $statusCode = $pageResponse->getStatusCode();
         $contents = $pageResponse
             ->getBody()
