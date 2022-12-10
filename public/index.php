@@ -166,9 +166,9 @@ $app->post('/urls/{id:[0-9]+}/checks', function ($request, $response, array $arg
 
         if ($statusCode >= 200 && $statusCode < 300) {
             $document = new Document($contents);
-            $check['h1'] = optional($document->first('h1'))->text() ?? '';
-            $check['title'] = optional($document->first('title'))->text() ?? '';
-            $check['description'] = optional($document->first('meta[name=description]'))->getAttribute('content') ?? '';
+            $check['h1'] = optional($document->first('h1'))->text();
+            $check['title'] = optional($document->first('title'))->text();
+            $check['description'] = optional($document->first('meta[name=description]'))->getAttribute('content');
         }
 
         $this->get('urlCheckRepository')->add($check);
