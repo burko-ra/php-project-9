@@ -28,7 +28,7 @@ class UrlRepository
     }
 
     /**
-     * @return array<mixed>|null
+     * @return array<mixed>
      */
     public function getBy(string $urlName, string $column = 'id')
     {
@@ -36,6 +36,15 @@ class UrlRepository
             FROM urls
             WHERE $column = :urlName";
         $urls = $this->db->query($sql, ['urlName' => $urlName]);
+        return $urls;
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    public function getById(string $urlName)
+    {
+        $urls = $this->getBy($urlName, 'id');
         return empty($urls) ? null : $urls[0];
     }
 
@@ -44,12 +53,11 @@ class UrlRepository
      */
     public function add(string $urlName)
     {
-        $createdAt = Carbon::now();
         $sql = "INSERT INTO urls (name, created_at) VALUES
             (:name, :createdAt)";
         $params = [
             ':name' => $urlName,
-            ':createdAt' => $createdAt
+            ':createdAt' => Carbon::now()
         ];
         $this->db->query($sql, $params);
     }

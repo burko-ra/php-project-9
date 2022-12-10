@@ -102,22 +102,22 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $normalizedUrlName = normalizeUrl($requestBodyParams['url']['name']);
     $urlRepository = $this->get('urlRepository');
 
-    $url = $urlRepository->getBy($normalizedUrlName, 'name');
-    if (is_null($url)) {
+    $urls = $urlRepository->getBy($normalizedUrlName, 'name');
+    if (empty($urls)) {
         $urlRepository->add($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
-        $url = $urlRepository->getBy($normalizedUrlName, 'name');
+        $urls = $urlRepository->getBy($normalizedUrlName, 'name');
     } else {
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $id = $url['id'];
+    $id = $urls[0]['id'];
     return $response->withRedirect($router->urlFor('urls.show', ['id' => (string) $id]), 302);
 })->setName('urls.store');
 
 $app->get('/urls/{id:[0-9]+}', function ($request, $response, array $args) {
     $urlId = $args['id'];
-    $url = $this->get('urlRepository')->getBy($urlId);
+    $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
         throw new HttpNotFoundException($request);
     }
@@ -145,7 +145,7 @@ $app->get('/urls', function ($request, $response) {
 
 $app->post('/urls/{id:[0-9]+}/checks', function ($request, $response, array $args) use ($router) {
     $urlId = $args['id'];
-    $url = $this->get('urlRepository')->getBy($urlId);
+    $url = $this->get('urlRepository')->getById($urlId);
     if (is_null($url)) {
         throw new HttpNotFoundException($request);
     }
