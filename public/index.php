@@ -122,7 +122,7 @@ $app->get('/urls/{id:[0-9]+}', function ($request, $response, array $args) {
         throw new HttpNotFoundException($request);
     }
 
-    $urlChecks = $this->get('urlCheckRepository')->getByUrlId($urlId);
+    $urlChecks = $this->get('urlCheckRepository')->getBy($urlId, 'url_id');
     $params = [
         'url' => $url,
         'urlChecks' => $urlChecks,
