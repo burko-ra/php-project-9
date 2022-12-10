@@ -13,11 +13,12 @@
                 <th>Код ответа</th>
             </tr>
             {% for url in urls %}
+                {% set id = url.url_id %}
                 <tr>
-                    <td>{{ url.url_id }}</td>
-                    <td><a href="{{ url_for('urls.show', {'id': url.url_id}) }}">{{url.url_name}}</a></td>
-                    <td>{{ url.url_last_check }}</td>
-                    <td>{{ url.url_last_status_code }}</td>
+                    <td>{{ id }}</td>
+                    <td><a href="{{ url_for('urls.show', {'id': id}) }}">{{url.url_name}}</a></td>
+                    <td>{{ checks[id].url_last_check }}</td>
+                    <td>{{ checks[id].url_last_status_code }}</td>
                 </tr>
             {% endfor %}
 

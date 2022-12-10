@@ -132,22 +132,15 @@ $app->get('/urls/{id:[0-9]+}', function ($request, $response, array $args) {
 
 $app->get('/urls', function ($request, $response) {
     $urls = $this->get('urlRepository')->all();
-
     $checks = $this->get('urlCheckRepository')->getDistinct();
-    $groupedChecks = array_reduce($checks, function ($acc, $item) {
-        $urlId = $item['url_id'];
-        $acc[$urlId] = $item;
-        return $acc;
-    }, []);
+    $groupedChecks = collect($checks)->keyBy('url_id')->toArray();
 
-    $merged = array_map(function ($url) use ($groupedChecks) {
-        $urlId = $url['url_id'];
-        $url['url_last_check'] = $groupedChecks[$urlId]['url_last_check'] ?? '';
-        $url['url_last_status_code'] = $groupedChecks[$urlId]['url_last_status_code'] ?? '';
-        return $url;
-    }, $urls);
+    $params = [
+        'urls' => $urls,
+        'checks' => $groupedChecks
+    ];
 
-    return $this->get('view')->render($response, 'urls/index.twig', ['urls' => $merged]);
+    return $this->get('view')->render($response, 'urls/index.twig', $params);
 })->setName('urls.index');
 
 $app->post('/urls/{id:[0-9]+}/checks', function ($request, $response, array $args) use ($router) {
