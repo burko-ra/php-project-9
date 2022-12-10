@@ -57,8 +57,7 @@ $container->set('urlCheckRepository', function (\Psr\Container\ContainerInterfac
 });
 
 $container->set('view', function (\Psr\Container\ContainerInterface $c) {
-    $loader = new FilesystemLoader(__DIR__ . '/../templates');
-    $twig = new Twig($loader, ['cache' => false]);
+    $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
     $twig->getEnvironment()->addGlobal('flash', $c->get('flash'));
     $twig->addExtension(new HtmlExtension());
     return $twig;
