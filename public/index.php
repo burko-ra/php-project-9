@@ -103,7 +103,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
     $urlRepository = $this->get('urlRepository');
 
     $url = $urlRepository->getBy($normalizedUrlName, 'name');
-    if ($url === null) {
+    if (is_null($url)) {
         $urlRepository->add($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
         $url = $urlRepository->getBy($normalizedUrlName, 'name');
