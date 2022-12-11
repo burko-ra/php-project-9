@@ -174,8 +174,7 @@ $app->post('/urls/{id:[0-9]+}/checks', function ($request, $response, array $arg
         $this->get('urlCheckRepository')->add($check);
         $this->get('flash')->addMessage('success', 'Страница успешно проверена');
     } catch (GuzzleException $e) {
-        $this->get('flash')->addMessage('danger', 'Страница успешно проверена');
-        // $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
+        $this->get('flash')->addMessage('danger', 'Произошла ошибка при проверке');
     }
 
     return $response->withRedirect($router->urlFor('urls.show', ['id' => $urlId]), 302);
