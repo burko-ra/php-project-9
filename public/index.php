@@ -42,7 +42,7 @@ $container->set('database', function () {
 
 $container->set('httpClient', function () {
     return new Client([
-        'timeout'  => 3.0,
+        'timeout'  => 5.0,
         'allow_redirects' => false,
         'http_errors' => false
     ]);
