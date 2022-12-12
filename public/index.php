@@ -15,7 +15,6 @@ use Slim\Psr7\Response;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use Twig\Extra\Html\HtmlExtension;
-use Twig\Loader\FilesystemLoader;
 
 use Carbon\Carbon;
 use DiDom\Document;

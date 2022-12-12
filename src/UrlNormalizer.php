@@ -11,6 +11,7 @@ function normalizeUrl(string $urlName)
     if ($urlParts === false) {
         return false;
     }
+
     $scheme = $urlParts['scheme'] ?? '';
     $host = $urlParts['host'] ?? '';
     $separator = $scheme === '' ? '' : '://';
