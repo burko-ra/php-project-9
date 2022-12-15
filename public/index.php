@@ -111,7 +111,7 @@ $app->post('/urls', function ($request, $response) use ($router) {
     }
 
     $id = $urls[0]['id'];
-    return $response->withRedirect($router->urlFor('urls.show', ['id' => (string) $id]), 302);
+    return $response->withRedirect($router->urlFor('urls.show', ['id' => $id]), 302);
 })->setName('urls.store');
 
 $app->get('/urls/{id:[0-9]+}', function ($request, $response, array $args) {
