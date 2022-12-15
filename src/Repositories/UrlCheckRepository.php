@@ -22,7 +22,7 @@ class UrlCheckRepository
             FROM url_checks
             WHERE $column = :value
             ORDER BY id DESC";
-        return $this->db->query($sql, [':value' => $value]);
+        return $this->db->getAll($sql, [':value' => $value]);
     }
 
     /**
@@ -41,7 +41,7 @@ class UrlCheckRepository
             ':title' => $check['title'] ?? '',
             ':description' => $check['description'] ?? ''
         ];
-        $this->db->query($sql, $params);
+        $this->db->insert($sql, $params);
     }
 
     /**
@@ -55,6 +55,6 @@ class UrlCheckRepository
             status_code as url_last_status_code
         FROM url_checks
         ORDER BY url_id DESC, url_last_check DESC";
-        return $this->db->query($sql);
+        return $this->db->getAll($sql);
     }
 }

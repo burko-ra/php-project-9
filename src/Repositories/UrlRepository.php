@@ -24,7 +24,7 @@ class UrlRepository
             name as url_name
         FROM urls
         ORDER BY url_id DESC";
-        return $this->db->query($sql);
+        return $this->db->getAll($sql);
     }
 
     /**
@@ -35,8 +35,7 @@ class UrlRepository
         $sql = "SELECT *
             FROM urls
             WHERE $column = :value";
-        $urls = $this->db->query($sql, [':value' => $value]);
-        return $urls;
+        return $this->db->getAll($sql, [':value' => $value]);
     }
 
     /**
@@ -44,12 +43,14 @@ class UrlRepository
      */
     public function getById(string $id)
     {
-        $urls = $this->getBy($id, 'id');
-        return empty($urls) ? null : $urls[0];
+        $sql = "SELECT *
+        FROM urls
+        WHERE id = :id";
+        return $this->db->getRow($sql, [':id' => $id]);
     }
 
     /**
-     * @return void
+     * @return string
      */
     public function add(string $name)
     {
@@ -59,6 +60,7 @@ class UrlRepository
             ':name' => $name,
             ':createdAt' => Carbon::now()
         ];
-        $this->db->query($sql, $params);
+        $this->db->insert($sql, $params);
+        return $this->getBy($name, 'name')[0]['id'];
     }
 }

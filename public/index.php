@@ -103,14 +103,13 @@ $app->post('/urls', function ($request, $response) use ($router) {
 
     $urls = $urlRepository->getBy($normalizedUrlName, 'name');
     if (empty($urls)) {
-        $urlRepository->add($normalizedUrlName);
+        $id = $urlRepository->add($normalizedUrlName);
         $this->get('flash')->addMessage('success', 'Страница успешно добавлена');
-        $urls = $urlRepository->getBy($normalizedUrlName, 'name');
     } else {
+        $id = $urls[0]['id'];
         $this->get('flash')->addMessage('info', 'Страница уже существует');
     }
 
-    $id = $urls[0]['id'];
     return $response->withRedirect($router->urlFor('urls.show', ['id' => $id]), 302);
 })->setName('urls.store');
 
