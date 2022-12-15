@@ -163,7 +163,7 @@ $app->post('/urls/{id:[0-9]+}/checks', function ($request, $response, array $arg
             'createdAt' => Carbon::now()
         ];
 
-        if ($statusCode >= 200 && $statusCode < 300) {
+        if ($contents) {
             $document = new Document($contents);
             $check['h1'] = optional($document->first('h1'))->text();
             $check['title'] = optional($document->first('title'))->text();
