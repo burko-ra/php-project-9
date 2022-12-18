@@ -34,7 +34,7 @@ class Database
         $matches = $sth->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($matches === false) {
-            throw new \Exception('Failed to get an array containing result set rows' . $this->dbh->errorInfo()[2]);
+            throw new \Exception('Failed to get an array containing result set rows: ' . $this->dbh->errorInfo()[2]);
         }
         return $matches;
     }
@@ -49,7 +49,7 @@ class Database
         $res = $sth->fetch(\PDO::FETCH_ASSOC);
 
         if ($res === false) {
-            throw new \Exception('Failed to get an array containing result row' . $this->dbh->errorInfo()[2]);
+            throw new \Exception('Failed to get an array containing result row: ' . $this->dbh->errorInfo()[2]);
         }
         return $res;
     }
