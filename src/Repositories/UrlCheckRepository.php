@@ -27,9 +27,8 @@ class UrlCheckRepository
 
     /**
      * @param array<mixed> $check
-     * @return void
      */
-    public function add($check)
+    public function add($check): string
     {
         $sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) VALUES
             (:urlId, :statusCode, :h1, :title, :description, :createdAt)";

@@ -49,10 +49,7 @@ class UrlRepository
         return $this->db->getRow($sql, [':id' => $id]);
     }
 
-    /**
-     * @return string
-     */
-    public function add(string $name)
+    public function add(string $name): string
     {
         $sql = "INSERT INTO urls (name, created_at) VALUES
             (:name, :createdAt)";

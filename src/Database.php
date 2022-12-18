@@ -51,9 +51,8 @@ class Database
 
     /**
      * @param array<mixed> $params
-     * @return void
      */
-    public function insert(string $sql, $params = [])
+    public function insert(string $sql, $params = []): string
     {
         $this->query($sql, $params);
         return $this->dbh->lastInsertId();
