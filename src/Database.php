@@ -46,7 +46,12 @@ class Database
     public function getRow(string $sql, $params = [])
     {
         $sth = $this->query($sql, $params);
-        return $sth->fetch(\PDO::FETCH_ASSOC);
+        $res = $sth->fetch(\PDO::FETCH_ASSOC);
+
+        if ($res === false) {
+            throw new \Exception('Failed to get an array containing result row' . $this->dbh->errorInfo()[2]);
+        }
+        return $res;
     }
 
     /**
@@ -55,7 +60,12 @@ class Database
     public function insert(string $sql, $params = []): string
     {
         $this->query($sql, $params);
-        return $this->dbh->lastInsertId();
+        $res = $this->dbh->lastInsertId();
+
+        if ($res === false) {
+            throw new \Exception('Failed to get the ID of the last inserted row: ' . $this->dbh->errorInfo()[2]);
+        }
+        return $res;
     }
 
     /**
@@ -67,7 +77,7 @@ class Database
         $sth = $this->dbh->prepare($sql);
         $res = $sth->execute($params);
 
-        if (!$res) {
+        if ($res === false) {
             throw new \Exception('Failed to execute the query: ' . $this->dbh->errorInfo()[2]);
         }
         return $sth;
