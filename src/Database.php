@@ -10,7 +10,7 @@ class Database
     {
         $dbUrl = getenv('DATABASE_URL');
         if (!$dbUrl) {
-            throw new \Exception('Cannot get env var DATABASE_URL');
+            throw new \Exception('Failed to get the environment variable DATABASE_URL');
         }
 
         $databaseUrl = parse_url($dbUrl);
@@ -34,7 +34,7 @@ class Database
         $matches = $sth->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($matches === false) {
-            throw new \Exception('Expect array, boolean given');
+            throw new \Exception('Failed to get an array containing result set rows' . $this->dbh->errorInfo()[2]);
         }
         return $matches;
     }
@@ -69,7 +69,7 @@ class Database
         $res = $sth->execute($params);
 
         if (!$res) {
-            throw new \Exception('Cannot execute the query');
+            throw new \Exception('Failed to execute the query: ' . $this->dbh->errorInfo()[2]);
         }
         return $sth;
     }
