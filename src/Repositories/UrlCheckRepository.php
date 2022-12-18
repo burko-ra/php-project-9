@@ -41,7 +41,7 @@ class UrlCheckRepository
             ':title' => $check['title'] ?? '',
             ':description' => $check['description'] ?? ''
         ];
-        $this->db->insert($sql, $params);
+        return $this->db->insert($sql, $params);
     }
 
     /**
