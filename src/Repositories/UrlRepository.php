@@ -60,7 +60,6 @@ class UrlRepository
             ':name' => $name,
             ':createdAt' => Carbon::now()
         ];
-        $this->db->insert($sql, $params);
-        return $this->getBy($name, 'name')[0]['id'];
+        return $this->db->insert($sql, $params);
     }
 }
