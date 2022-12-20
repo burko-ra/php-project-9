@@ -7,4 +7,4 @@ install:
 
 lint:
 	composer exec --verbose phpcs -- --standard=PSR12 public src templates
-	composer exec --verbose phpstan -- --level=8 analyse public src templates
+	composer exec --verbose phpstan -- --xdebug --level=8 analyse public src templates

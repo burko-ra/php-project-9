@@ -31,12 +31,7 @@ class Database
     public function getAll(string $sql, $params = [])
     {
         $sth = $this->query($sql, $params);
-        $matches = $sth->fetchAll(\PDO::FETCH_ASSOC);
-
-        if ($matches === false) {
-            throw new \Exception('Failed to get an array containing result set rows: ' . $this->dbh->errorInfo()[2]);
-        }
-        return $matches;
+        return $sth->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
