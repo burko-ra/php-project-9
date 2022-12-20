@@ -38,5 +38,10 @@
         "slim/twig-view": "^3.3",
         "illuminate/support": "^8.83",
         "twig/html-extra": "^3.4"
+    },
+    "config": {
+        "platform": {
+            "php": "8.1"
+        }
     }
 }
