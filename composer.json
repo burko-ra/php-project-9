@@ -21,6 +21,7 @@
         "symfony/var-dumper": "^5.4"
     },
     "require": {
+        "php": ">=7.4 <8.2",
         "slim/slim": "^4.10",
         "slim/psr7": "^1.5",
         "slim/http": "^1.2",
@@ -37,10 +38,5 @@
         "slim/twig-view": "^3.3",
         "illuminate/support": "^8.83",
         "twig/html-extra": "^3.4"
-    },
-    "config": {
-        "platform": {
-            "php": "8.1"
-        }
     }
 }
